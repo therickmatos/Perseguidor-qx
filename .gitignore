@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+# saidas de referencia dos scripts de mecanica (regeneraveis)
+mecanica/stl/bracos_montados_referencia*.stl
+mecanica/stl/anel_2d.json
+# testes do firmware compilados
+firmware/testes/sim
+firmware/testes/teste_ir
+*.exe
+# Arduino / PlatformIO
+build/
+.pio/
+# sistema
+.DS_Store
+Thumbs.db
+desktop.ini
