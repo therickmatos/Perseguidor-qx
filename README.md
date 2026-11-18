@@ -2,7 +2,7 @@
 
 Robô perseguidor de linha com sucção por EDF (QX-Motor 30 mm), placa **Galiléia3** em fenolite, para o Perseguidor de Linha do TRIF 2026 (regras da RoboCore).
 
-> Foto do robô: falta (colocar em [`docs/imagens/`](docs/imagens/) e trocar esta linha).
+> Foto do robô: pendente, depois da montagem (vai para [`docs/imagens/`](docs/imagens/)).
 
 - **ESP32-C3 SuperMini**, firmware próprio (`firmware/principal/`), console pela USB
 - **TB6612FNG** para os dois motores; rodas de Ø22 mm
@@ -27,12 +27,19 @@ Robô perseguidor de linha com sucção por EDF (QX-Motor 30 mm), placa **Galil�
 ## Estado (17/11/2026)
 - [x] Esquemático no EasyEDA Pro, corrigido em 17/11 (rótulos de rede no lugar dos netports; `BAT` → `VBAT` no XT60). O `.epro` entra no repositório depois de revisado
 - [ ] Gerber e `esquematico.pdf`
-- [x] Anel da EDF e braços da barra: scripts e STL (`mecanica/`)
-- [ ] Patins (`gerar_patins.py` ainda não está aqui)
+- [x] Anel da EDF e braços da barra: scripts e STL (`mecanica/`). O robô não usa patins
 - [x] Teste da barra de sensores, validado na bancada (`firmware/teste_barra/`)
 - [x] Firmware de competição (`firmware/principal/`): passa no simulador e no teste do IR; **ainda não rodou no robô**
 - [ ] Primeira energização ([`docs/testes.md`](docs/testes.md))
 - [ ] Montagem e ajuste na pista
+
+## Pendente
+Depende de acesso ao EasyEDA ou da montagem:
+- [ ] `.epro` revisado → [`eletronica/easyeda/`](eletronica/easyeda/README.md)
+- [ ] Gerber `.zip` → [`eletronica/fabricacao/`](eletronica/fabricacao/README.md)
+- [ ] `esquematico.pdf` → [`eletronica/`](eletronica/README.md)
+- [ ] lista de componentes definitiva, com motores, bateria e ESC → [`docs/BOM.md`](docs/BOM.md)
+- [ ] fotos do robô montado → [`docs/imagens/`](docs/imagens/)
 
 ## Estrutura
 | Pasta | Conteúdo |

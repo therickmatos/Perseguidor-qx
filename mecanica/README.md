@@ -21,7 +21,6 @@ Tudo em PLA.
 | `placa_impressao_anel_A_e_B.stl` | — | A e B lado a lado, para imprimir os dois de uma vez |
 | `bracos_barra_12cm_M2.5_M2.stl` | 1 par | braços da barra, 120 mm, furos para a barra de 50 a 110 mm a cada 10 mm |
 | `bracos_barra_M2.5_M2.stl` | 1 par | versão longa: furos de 50 a 185 mm a cada 5 mm |
-| patins | — | **falta**: o `gerar_patins.py` ainda não está no repositório |
 
 - O corpo do duto da EDF mede Ø34,0 (folha de dados = medido). O anel A aperta mais que o B; o de 34,4 fica no meio. Imprimir um, testar o encaixe e só então escolher.
 - Cada anel pesa ~6,5 g em PLA. Os braços: 11,4 g (12 cm) ou 16,9 g (longo), maciços.
@@ -61,7 +60,7 @@ Tudo em PLA.
 2. Barra nos dois braços, no mesmo furo dos dois lados, com M2. Os 12 sensores ficam à frente dos furos da barra.
 3. Ligar o cabo da barra no conector 1×8 da placa (ordem em `eletronica/README.md`).
 
-Falta escrever: motores e rodas, bateria, patins e a passagem dos cabos.
+Falta escrever: motores e rodas, bateria e a passagem dos cabos.
 
 ## Gerar de novo
 Precisa de `numpy`, `shapely`, `trimesh`, `manifold3d`, `matplotlib` e, para o DXF, `ezdxf`.

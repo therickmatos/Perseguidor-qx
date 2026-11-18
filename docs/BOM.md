@@ -1,6 +1,6 @@
 # Lista de componentes (BOM)
 
-> **Provisória.** Montada a partir do esquemático do `.epro` de 17/11/2026 e dos scripts de `mecanica/`. A lista de componentes que o Erick passou em outra conversa não estava disponível aqui: substituir ou completar com ela (quantidades de reserva, fornecedores, preços).
+> **Provisória (pendente).** Montada a partir do esquemático do `.epro` de 17/11/2026 e dos scripts de `mecanica/`. A lista definitiva vem do EasyEDA, junto com o modelo dos motores, da bateria e do ESC.
 
 ## Placa Galiléia3
 | Ref. | Qtde | Componente | Observação |
@@ -32,4 +32,4 @@
 | 1 | bateria LiPo com XT60 | tensão a definir nesta lista: o TB6612 aceita até 13,5 V no VM e o Mini360 até 23 V |
 
 ## Peças impressas e ferragens
-Ver [`mecanica/README.md`](../mecanica/README.md#o-que-imprimir) (anel da EDF, braços da barra; patins ainda faltam) e [ferragens](../mecanica/README.md#ferragens): 3× M3×8 + 3 parlock M3, 1× M3×12 + porca M3, 2× M2,5×8 + porca, 2× M2 + porca.
+Ver [`mecanica/README.md`](../mecanica/README.md#o-que-imprimir) (anel da EDF e braços da barra) e [ferragens](../mecanica/README.md#ferragens): 3× M3×8 + 3 parlock M3, 1× M3×12 + porca M3, 2× M2,5×8 + porca, 2× M2 + porca.
