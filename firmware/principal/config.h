@@ -58,7 +58,7 @@
 // Leitura de cada sensor: amostras, acomodacao do mux (us) e descarte da
 // primeira conversao. Comecam nos valores do barra.h; troque pelos que a
 // varredura 't' do teste_barra recomendar e confira o tempo no console ('?').
-#define LEITURA_AMOSTRAS        4
+#define LEITURA_AMOSTRAS        1   // 4 dava 2053 us (> ciclo de 2000) no robo, 18/11
 #define LEITURA_ACOMODACAO_US  20
 #define LEITURA_DESCARTE        1
 
