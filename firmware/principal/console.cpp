@@ -329,9 +329,10 @@ static void fluxoIR() {
 
 // Esquerda frente, esquerda re, direita frente, direita re (1 a 4 bipes antes de cada)
 void testeMotores() {
+  Serial.println(F("teste das rodas: PWM 120 de 255, 0,5 s cada"));
   for (uint8_t k = 0; k < 4; k++) {
     bool esq = (k < 2);
-    int16_t v = (k & 1) ? -40 : 40;
+    int16_t v = (k & 1) ? -120 : 120;   // 40 nao vencia o atrito dos motores (18/11)
     Serial.print(esq ? F("roda ESQUERDA ") : F("roda DIREITA "));
     Serial.println(v > 0 ? F("para a frente") : F("para tras"));
     bipe(k + 1, 50, BIPE_AGUDO);
