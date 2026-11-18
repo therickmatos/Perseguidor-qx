@@ -14,7 +14,7 @@
  *   salvar       grava os parametros na NVS
  *   padrao       volta aos valores de fabrica (nao grava)
  *   arena=n      grava o numero da arena do modulo de inicio (par, 0..126)
- *   cor          troca linha branca/preta (grava na NVS)
+ *   cor          troca linha branca/preta ate desligar (o padrao e o do config.h)
  *   ir           mostra os quadros RC5 e NEC recebidos (qualquer tecla para)
  *   s            sensores normalizados e erro (qualquer tecla para)
  *   r            leitura crua dos 16 canais do mux e pino do IR
@@ -381,9 +381,8 @@ static void executar(char *cmd) {
     listarParametros();
   } else if (!strcmp(cmd, "cor")) {
     barra.setCorLinha(barra.corLinha() == LINHA_BRANCA ? LINHA_PRETA : LINHA_BRANCA);
-    bool ok = barra.salvarCor();
-    Serial.printf("linha %s (%s)\n", barra.corLinha() == LINHA_BRANCA ? "BRANCA" : "PRETA",
-                  ok ? "gravada" : "ERRO ao gravar");
+    Serial.printf("linha %s ate desligar (para mudar de vez: COR_LINHA_PADRAO no config.h)\n",
+                  barra.corLinha() == LINHA_BRANCA ? "BRANCA" : "PRETA");
   } else if (!strcmp(cmd, "s")) {
     fluxoNormalizado();
   } else if (!strcmp(cmd, "r")) {

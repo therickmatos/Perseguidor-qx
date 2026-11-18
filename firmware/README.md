@@ -19,7 +19,7 @@ O `principal` é o firmware do perseguidor [RUSH - Dreamcast](https://github.com
 
 Se a gravação não começar: segurar BOOT, apertar e soltar RESET, soltar BOOT e gravar de novo.
 
-`teste_barra/` grava do mesmo jeito. O `teste_barra.ino` daqui já usa os pinos da placa Galiléia3 (S0..S3 = GPIO0..3, SIG = GPIO4); no teste validado, em protoboard, eram GPIO5, 6, 7, 10 e GPIO3. Comandos dele: `m` canais, `c` calibrar, `d` diagnóstico, `t` varredura de tempo, `l` cor da linha, `p` CSV, `r` descartar calibração, `x` apagar NVS. A calibração que ele grava vale para o `principal` (mesma NVS, se o mapa for o mesmo).
+`teste_barra/` grava do mesmo jeito. O `teste_barra.ino` daqui já usa os pinos da placa Galiléia3 (S0..S3 = GPIO0..3, SIG = GPIO4); no teste validado, em protoboard, eram GPIO5, 6, 7, 10 e GPIO3. Comandos dele: `m` canais, `c` calibrar, `d` diagnóstico, `t` varredura de tempo, `l` cor da linha, `p` CSV, `r` descartar calibração, `x` apagar NVS. Ele liga com linha **branca em fundo preto** (a da pista); se aparecer "Linha PRETA" no início é porque há uma cor antiga gravada: `l` troca e grava. A calibração que ele grava vale para o `principal` (mesma NVS, se o mapa for o mesmo); a cor não: o `principal` sempre liga com a do `config.h` (branca).
 
 ## Uso
 Botão 1 = botão da placa (GPIO21). Botão 2 = **BOOT** da SuperMini (GPIO9). Não há LED livre (o LED azul da SuperMini está no GPIO8, que é o sinal do ESC): os avisos saem como **bipe nos motores** (as rodas alternam de sentido na frequência do som; o robô não anda). Volume: parâmetro `bipe` (0 = mudo).
@@ -68,7 +68,7 @@ Igual ao do Dreamcast (`ir.h/.cpp` copiados sem mudança; detalhes no [README do
 7. **Parada:** em "pronto", com as rodas no ar, partida e parada pelo controle. Depois no chão, no nível 0, com a mão perto.
 
 ## Console (USB, só com o robô parado)
-`?` estado · `p` lista · `nome=valor` muda · `salvar` grava na NVS · `padrao` valores de fábrica · `arena=n` número da arena · `cor` linha branca/preta · `ir` quadros IR · `s` sensores ao vivo · `r` canais crus e pino do IR · `m` confere os canais · `res` resumo da última partida · `log` últimos 2,4 s em CSV · `motores` teste das rodas · `edf` teste da EDF
+`?` estado · `p` lista · `nome=valor` muda · `salvar` grava na NVS · `padrao` valores de fábrica · `arena=n` número da arena · `cor` linha branca/preta até desligar · `ir` quadros IR · `s` sensores ao vivo · `r` canais crus e pino do IR · `m` confere os canais · `res` resumo da última partida · `log` últimos 2,4 s em CSV · `motores` teste das rodas · `edf` teste da EDF
 
 | Parâmetro | Padrão | O que é |
 |---|---|---|

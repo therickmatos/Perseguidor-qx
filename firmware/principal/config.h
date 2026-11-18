@@ -16,8 +16,9 @@
 #define FW_VERSAO  "0.1.0"
 
 // ------------------------------------------------------------------ pista
-// RoboCore/TRIF: linha branca em manta preta. O comando 'cor' do console
-// troca e grava na NVS (a mesma chave do teste_barra).
+// RoboCore/TRIF e a pista do laboratorio: linha branca em fundo preto.
+// O robo sempre liga com esta cor: a cor gravada na NVS (pelo 'l' do
+// teste_barra) e ignorada. O comando 'cor' do console troca so ate desligar.
 #define COR_LINHA_PADRAO  LINHA_BRANCA
 
 // ------------------------------------------------------------------ pinos

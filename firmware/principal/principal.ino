@@ -369,10 +369,14 @@ void setup() {
   if (!arenaGravada) arena = 0;
 
   EstadoNVS nvs = barra.carregarNVS();
-  Serial.printf("\nNVS da barra: calibracao %s | cor %s\n",
+  Serial.printf("\nNVS da barra: calibracao %s\n",
                 nvs.calibracao ? "carregada (botao 2 para usar)"
-                               : (nvs.calibracaoInvalida ? "ignorada (outro mapa ou dados invalidos)" : "nenhuma"),
-                nvs.cor ? "carregada" : "padrao");
+                               : (nvs.calibracaoInvalida ? "ignorada (outro mapa ou dados invalidos)" : "nenhuma"));
+  // A cor e sempre a do config.h: a que o teste_barra gravou na NVS nao vale aqui
+  if (nvs.cor && barra.corLinha() != COR_LINHA_PADRAO) {
+    Serial.println(F("cor da linha gravada pelo teste_barra ignorada: vale a do config.h"));
+  }
+  barra.setCorLinha(COR_LINHA_PADRAO);
   consoleEstado();
 
   // leitura lenta demais para o ciclo: 3 bipes graves (o console explica)

@@ -40,7 +40,8 @@
 #define PINO_SIG     4     // saida comum do mux (ADC1_CH4)
 #define PINO_BOTAO   9     // BOOT, ativo em baixo (pull-up interno)
 
-#define COR_LINHA_PADRAO  LINHA_PRETA   // ou LINHA_BRANCA; o comando 'l' troca e salva
+#define COR_LINHA_PADRAO  LINHA_BRANCA  // pista do perseguidor: linha branca em fundo preto
+                                        // (era LINHA_PRETA na bancada); o comando 'l' troca e salva
 
 #define TEMPO_MAPEAMENTO_MS    8000
 #define TEMPO_CALIBRACAO_MS   10000
