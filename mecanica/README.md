@@ -15,7 +15,7 @@ Tudo em PLA.
 
 | Arquivo (`stl/`) | Qtde | Função |
 |---|---|---|
-| `anel_edf_qx30_furo34.4.stl` | 1 | anel de fixação da EDF QX-Motor 30 mm, furo Ø34,4 (a versão da figura abaixo) |
+| `anel_edf_qx30_furo34.4.stl` | 1 | anel de fixação da EDF QX-Motor 30 mm, furo Ø34,4, sem entalhe (a versão da figura abaixo) |
 | `anel_edf_qx30_A_furo34.3.stl` | 1 | o mesmo anel com furo Ø34,3, 1 entalhe de identificação na orelha |
 | `anel_edf_qx30_B_furo34.5.stl` | 1 | o mesmo anel com furo Ø34,5, 2 entalhes |
 | `placa_impressao_anel_A_e_B.stl` | — | A e B lado a lado, para imprimir os dois de uma vez |
@@ -80,4 +80,4 @@ python3 mecanica/scripts/gerar_bracos.py
 
 Os dois gravam em `mecanica/stl/` (o do anel aceita outra pasta como argumento; o dos braços aceita `longo` ou `12cm` para gerar só uma versão). As medidas de entrada estão no começo de cada script. Os arquivos de referência que os scripts também gravam (`bracos_montados_referencia*.stl`, braços na posição montada, e `anel_2d.json`) ficam fora do git.
 
-Os STL atuais saíram desses scripts; o dos braços de 12 cm é idêntico ao enviado em 17/11/2026. O anel de 34,4 é o enviado (o script gera só o A e o B).
+Os STL atuais saíram desses scripts e são idênticos, byte a byte, aos enviados em 17/11/2026: o anel de 34,4 (variante `figura` do `gerar_anel.py`: folga 0,4, sem entalhe) e os braços de 12 cm. O DXF muda só a data e os identificadores internos a cada execução.

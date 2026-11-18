@@ -9,7 +9,8 @@ Referências (z = 0 na face de cima da placa, onde a aba encosta):
 - Furos da placa para as abas com 4,0 mm: a braçadeira, ao fechar, desloca as abas até ~0,5 mm (A) / ~0,8 mm (B).
 - Ângulos: 0° = direita (+x), 90° = frente (+y, lado da barra e da bateria), 270° = trás.
 
-Saídas: anel A (furo 34,3) e anel B (furo 34,5), uma placa de impressão com os dois,
+Saídas: anel A (furo 34,3), anel B (furo 34,5), o anel da figura (furo 34,4, sem
+entalhe; idêntico ao STL de 17/11/2026), uma placa de impressão com A e B,
 contorno 2D e o DXF dos furos da placa. Vão para mecanica/stl/ (ou para a pasta
 dada na linha de comando: python3 gerar_anel.py <pasta>).
 """
@@ -37,7 +38,13 @@ BASE = dict(
     furo_placa=38.0, furo_placa_m3=4.0,
     marcas=1,
 )
-VARIANTES = {'A': dict(folga_furo=0.3, marcas=1), 'B': dict(folga_furo=0.5, marcas=2)}
+VARIANTES = {'A': dict(folga_furo=0.3, marcas=1), 'B': dict(folga_furo=0.5, marcas=2),
+             'figura': dict(folga_furo=0.4, marcas=0)}   # a da figura: furo 34,4, sem entalhe
+NA_PLACA = ('A', 'B')                                       # vão juntos na placa de impressão
+
+def nome_arquivo(nome, p):
+    letra = '' if nome == 'figura' else nome + '_'
+    return f'anel_edf_qx30_{letra}furo{p["duto"] + p["folga_furo"]:.1f}.stl'
 
 def rot_z(m, deg):
     m.apply_transform(trimesh.transformations.rotation_matrix(math.radians(deg), (0, 0, 1)))
@@ -107,10 +114,11 @@ if __name__ == '__main__':
         p = dict(BASE, **var)
         anel, g = build(p)
         assert anel.is_watertight and len(anel.split(only_watertight=False)) == 1
-        anel.export(f'{out}/anel_edf_qx30_{nome}_furo{p["duto"] + p["folga_furo"]:.1f}.stl')
+        anel.export(f'{out}/{nome_arquivo(nome, p)}')
         info[nome] = dict(furo=round(2 * g['r_furo'], 2), massa_pla_g=round(anel.volume / 1000 * 1.24, 1),
                           limites=np.round(anel.bounds, 2).tolist())
-        c = anel.copy(); c.apply_translation((-32 if nome == 'A' else 32, 0, 0)); placa.append(c)
+        if nome in NA_PLACA:
+            c = anel.copy(); c.apply_translation((-32 if nome == 'A' else 32, 0, 0)); placa.append(c)
         if nome == 'A':
             p_ref, g_ref = p, g
     trimesh.util.concatenate(placa).export(f'{out}/placa_impressao_anel_A_e_B.stl')
