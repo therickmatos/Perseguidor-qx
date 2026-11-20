@@ -162,6 +162,16 @@
 #define BIPE_AGUDO         2400   // Hz
 #define BIPE_GRAVE         1200
 
+// ------------------------------------------------------------------ Bluetooth (console no celular)
+// O mesmo console da USB, pelo BLE (servico UART da Nordic). Apps: Android
+// "Serial Bluetooth Terminal" (aba Bluetooth LE), iOS "Bluefruit Connect" (UART).
+// Pelo BLE, os comandos so valem depois de "senha=<BLE_SENHA>" em cada
+// conexao: sem isso, qualquer celular por perto mandaria 'motores' ou 'edf'.
+// TROQUE A SENHA antes de levar o robo para a competicao.
+#define BLE_CONSOLE           1      // 0 = so USB (o firmware fica bem menor)
+#define BLE_NOME   "Perseguidor-qx"
+#define BLE_SENHA  "1234"
+
 // ------------------------------------------------------------------ registro
 #define LOG_TAMANHO         120   // amostras guardadas (as ultimas)
 #define LOG_PERIODO_MS       20   // 120 x 20 ms = ultimos 2,4 s

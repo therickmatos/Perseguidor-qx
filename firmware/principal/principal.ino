@@ -64,6 +64,7 @@
 #include "hw.h"
 #include "memoria.h"
 #include "estado.h"
+#include "canal.h"
 
 #if !ARDUINO_USB_CDC_ON_BOOT
 #error "Ative Ferramentas > USB CDC On Boot: Enabled (arduino-cli: --fqbn esp32:esp32:esp32c3:CDCOnBoot=cdc)"
@@ -169,7 +170,7 @@ static ComandoIR tratarIR() {
     bipe(3, 60, BIPE_AGUDO);
   } else if (c == IR_OUTRO) {
     // sem bipe: pode ser o controle da equipe adversaria
-    Serial.printf("IR %s: endereco %u comando %u (nao e para este robo)\n",
+    Con.printf("IR %s: endereco %u comando %u (nao e para este robo)\n",
                   q.protocolo == IR_NEC ? "NEC" : "RC5", (unsigned)q.endereco, (unsigned)q.comando);
   }
   return c;
@@ -179,7 +180,7 @@ static ComandoIR tratarIR() {
 
 // Minimo e maximo de cada sensor (barra.cpp): tem que passar a barra inteira pela linha.
 static bool calibrar() {
-  Serial.println(F("calibrando: passe a barra inteira pela linha; botao 1 termina"));
+  Con.println(F("calibrando: passe a barra inteira pela linha; botao 1 termina"));
   bipe(1, 60, BIPE_AGUDO);
   barra.iniciarCalibracao();
   while (!hwBotao(1)) barra.amostrarCalibracao();
@@ -189,14 +190,14 @@ static bool calibrar() {
   ResultadoCalibracao r = barra.finalizarCalibracao();
   consoleCalibracao(r);
   if (!r.aceita) {
-    Serial.println(r.manteveAnterior ? F("REJEITADA: a calibracao anterior continua valendo")
+    Con.println(r.manteveAnterior ? F("REJEITADA: a calibracao anterior continua valendo")
                                      : F("REJEITADA: refaca"));
-    Serial.println(F("se forem sempre os mesmos sensores, confira os canais com o comando m"));
+    Con.println(F("se forem sempre os mesmos sensores, confira os canais com o comando m"));
     bipeErro();
     return false;
   }
   temCal = true;
-  Serial.println(barra.salvarCalibracao() ? F("calibracao aceita e gravada")
+  Con.println(barra.salvarCalibracao() ? F("calibracao aceita e gravada")
                                           : F("calibracao aceita, mas ERRO ao gravar na NVS"));
   bipeOk();
   return true;
@@ -205,12 +206,12 @@ static bool calibrar() {
 // ---------------------------------------------------------------- telas
 
 static void telaEspera() {
-  Serial.println(F("botao 1 = calibrar | botao 2 = usar a calibracao gravada | "
+  Con.println(F("botao 1 = calibrar | botao 2 = usar a calibracao gravada | "
                    "segurar 1 = teste das rodas | segurar 2 = teste da EDF"));
   while (!temCal) {
     consoleProcessar();
     if (tratarIR() == IR_PARTIDA) {
-      Serial.println(F("partida ignorada: calibre antes"));
+      Con.println(F("partida ignorada: calibre antes"));
       bipeErro();
     }
     uint8_t t = lerToque();
@@ -219,10 +220,10 @@ static void telaEspera() {
     } else if (t == 2) {
       if (barra.calibrado()) {
         temCal = true;
-        Serial.println(F("calibracao gravada em uso"));
+        Con.println(F("calibracao gravada em uso"));
         bipeOk();
       } else {
-        Serial.println(F("nao ha calibracao gravada para esta barra"));
+        Con.println(F("nao ha calibracao gravada para esta barra"));
         bipeErro();
       }
     } else if (t == (1 | TOQUE_LONGO)) {
@@ -246,7 +247,7 @@ static uint16_t telaPronto() {
   }
   consoleNivel();
   consoleArena();
-  Serial.println(F("pronto: controle = partida | botao 1 = largar em 1 s (teste) | botao 2 = sobe o nivel"));
+  Con.println(F("pronto: controle = partida | botao 1 = largar em 1 s (teste) | botao 2 = sobe o nivel"));
   bipe(1, 150, BIPE_AGUDO);
 
   for (;;) {
@@ -357,6 +358,7 @@ void setup() {
   Serial.setTxBufferSize(4096);
   Serial.setTxTimeoutMs(0);
   Serial.begin(115200);
+  Con.iniciar();   // Bluetooth (BLE_CONSOLE no config.h)
 
   // O ciclo de controle e a calibracao sao lacos longos sem pausa, de
   // proposito: a tarefa ociosa nao roda e o vigia dela reclamaria.
@@ -369,12 +371,12 @@ void setup() {
   if (!arenaGravada) arena = 0;
 
   EstadoNVS nvs = barra.carregarNVS();
-  Serial.printf("\nNVS da barra: calibracao %s\n",
+  Con.printf("\nNVS da barra: calibracao %s\n",
                 nvs.calibracao ? "carregada (botao 2 para usar)"
                                : (nvs.calibracaoInvalida ? "ignorada (outro mapa ou dados invalidos)" : "nenhuma"));
   // A cor e sempre a do config.h: a que o teste_barra gravou na NVS nao vale aqui
   if (nvs.cor && barra.corLinha() != COR_LINHA_PADRAO) {
-    Serial.println(F("cor da linha gravada pelo teste_barra ignorada: vale a do config.h"));
+    Con.println(F("cor da linha gravada pelo teste_barra ignorada: vale a do config.h"));
   }
   barra.setCorLinha(COR_LINHA_PADRAO);
   consoleEstado();

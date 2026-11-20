@@ -67,7 +67,18 @@ Igual ao do Dreamcast (`ir.h/.cpp` copiados sem mudança; detalhes no [README do
 6. **EDF:** SW2 ligada (o ESC arma com bipes), EDF presa, console `edf`. Começar com `vent` baixo.
 7. **Parada:** em "pronto", com as rodas no ar, partida e parada pelo controle. Depois no chão, no nível 0, com a mão perto.
 
-## Console (USB, só com o robô parado)
+## Console pelo celular (Bluetooth)
+O mesmo console da USB, pelo BLE do ESP32-C3 (não é Bluetooth clássico: não aparece na lista de pareamento do celular, só dentro do app).
+1. App: **Android "Serial Bluetooth Terminal"** (Kai Morich) → menu → Devices → aba **Bluetooth LE** → "Perseguidor-qx". **iOS: "Bluefruit Connect"** → conectar → UART.
+2. Mande `senha=1234` (troque `BLE_SENHA` no `config.h` antes da competição). Sem a senha, nenhum comando vale: qualquer celular por perto conseguiria mandar `motores` ou `edf`.
+3. Daí em diante, os mesmos comandos da tabela abaixo. A senha vale até desconectar.
+
+- Com o Bluetooth, dá para ajustar com a SW1 ligada e sem cabo: mudar, `salvar`, voltar para "pronto" e largar.
+- Como na USB, o console só responde com o robô parado; o que chegar durante a partida fica para depois.
+- Conferir no `res` depois das primeiras voltas se `atrasados` continua em 0: a pilha do BLE pode atrasar um ciclo de vez em quando. Se atrapalhar, `BLE_CONSOLE 0`.
+- Se a IDE disser que o sketch não cabe ("Sketch too big"): Ferramentas → Partition Scheme → **Huge APP (3MB No OTA/1MB SPIFFS)**. A NVS fica no mesmo lugar (parâmetros e calibração continuam).
+
+## Console (USB ou Bluetooth, só com o robô parado)
 `?` estado · `p` lista · `nome=valor` muda · `salvar` grava na NVS · `padrao` valores de fábrica · `arena=n` número da arena · `cor` linha branca/preta até desligar · `ir` quadros IR · `s` sensores ao vivo · `r` canais crus e pino do IR · `m` confere os canais · `res` resumo da última partida · `log` últimos 2,4 s em CSV · `motores` teste das rodas · `edf` teste da EDF
 
 | Parâmetro | Padrão | O que é |
