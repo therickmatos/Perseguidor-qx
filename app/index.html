@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Perseguidor-qx</title>
+<meta name="description" content="Ajuste do robô Perseguidor-qx pelo Bluetooth">
+<meta name="theme-color" content="#14181f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icones/icone.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icones/icone-192.png">
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header class="topo">
+  <div class="marca">
+    <img src="icones/icone.svg" alt="" width="28" height="28">
+    <div>
+      <h1>Perseguidor-qx</h1>
+      <span id="estado" class="estado">desconectado</span>
+    </div>
+  </div>
+  <button id="btConectar" class="primario">Conectar</button>
+</header>
+
+<div id="avisoBT" class="aviso" hidden>
+  Este navegador não tem Web Bluetooth. No Android, abra esta página no <b>Chrome</b>
+  (endereço <b>https://</b>) e confira se o Bluetooth e a localização estão ligados.
+</div>
+
+<main>
+  <!-- ======================================================= Ajustes -->
+  <section id="aba-ajustes" class="aba ativa">
+    <div class="cartao" id="cartaoResumo">
+      <div class="grade-resumo">
+        <div><span class="rot">Calibração</span><b id="rCal">—</b></div>
+        <div><span class="rot">Linha</span><b id="rLinha">—</b></div>
+        <div><span class="rot">Nível</span><b id="rNivel">—</b></div>
+        <div><span class="rot">Leitura</span><b id="rLeitura">—</b></div>
+      </div>
+      <div class="linha-botoes">
+        <button data-acao="atualizar">Ler do robô</button>
+        <button data-acao="salvar" id="btSalvar" class="primario">Salvar no robô</button>
+      </div>
+      <p class="dica" id="dicaSalvar">As mudanças valem na hora, até desligar. <b>Salvar no robô</b> grava de vez.</p>
+    </div>
+
+    <div id="grupos"></div>
+
+    <div class="cartao">
+      <h2>Módulo de início</h2>
+      <div class="param">
+        <div class="param-txt"><b>arena</b><span>Número da arena (par, 0 a 126). Grava na hora.</span></div>
+        <div class="param-ctl">
+          <input id="inArena" type="number" inputmode="numeric" min="0" max="126" step="2" value="0">
+          <button data-acao="arena">Gravar</button>
+        </div>
+      </div>
+      <p class="dica" id="rArena"></p>
+    </div>
+
+    <div class="cartao">
+      <h2>Perfis no celular</h2>
+      <p class="dica">Guarde um conjunto de parâmetros com um nome (por exemplo, "pista lab seca") e mande de volta ao robô depois.</p>
+      <div class="linha-botoes">
+        <select id="selPerfil"><option value="">(nenhum perfil)</option></select>
+        <button data-acao="perfil-carregar">Mandar ao robô</button>
+      </div>
+      <div class="linha-botoes">
+        <button data-acao="perfil-guardar">Guardar atual</button>
+        <button data-acao="perfil-apagar" class="perigo-leve">Apagar</button>
+        <button data-acao="perfil-exportar">Exportar</button>
+      </div>
+      <div class="linha-botoes">
+        <button data-acao="padrao" class="perigo-leve">Valores de fábrica</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================= Sensores -->
+  <section id="aba-sensores" class="aba">
+    <div class="cartao">
+      <h2>Barra ao vivo</h2>
+      <p class="dica">0 = fundo, 255 = em cima da linha. Precisa da calibração (botão 1 do robô).</p>
+      <div id="barras" class="barras"></div>
+      <div class="erro-trilho"><div id="erroMarca" class="erro-marca"></div></div>
+      <div class="grade-resumo">
+        <div><span class="rot">Erro</span><b id="sErro">—</b></div>
+        <div><span class="rot">Linha</span><b id="sVista">—</b></div>
+        <div><span class="rot">Faixa atravessada</span><b id="sCruz">—</b></div>
+      </div>
+      <div class="linha-botoes">
+        <button data-acao="sensores" id="btSensores" class="primario">Começar</button>
+      </div>
+      <p class="dica" id="sAviso"></p>
+    </div>
+  </section>
+
+  <!-- ======================================================= Partida -->
+  <section id="aba-partida" class="aba">
+    <div class="cartao">
+      <h2>Última partida</h2>
+      <ul id="resumo" class="lista-res"><li class="dica">Toque em "Ler resumo" depois de uma partida.</li></ul>
+      <div class="linha-botoes">
+        <button data-acao="res" class="primario">Ler resumo</button>
+        <button data-acao="log">Ler registro</button>
+      </div>
+    </div>
+    <div class="cartao">
+      <h2>Últimos 2,4 s</h2>
+      <canvas id="grafico" height="300"></canvas>
+      <div class="legenda">
+        <span><i class="c-erro"></i>erro</span>
+        <span><i class="c-esq"></i>roda esq.</span>
+        <span><i class="c-dir"></i>roda dir.</span>
+        <span><i class="c-sem"></i>sem linha</span>
+        <span><i class="c-faixa"></i>faixa</span>
+      </div>
+      <div class="linha-botoes">
+        <button data-acao="csv" id="btCsv" disabled>Baixar CSV</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================= Testes -->
+  <section id="aba-testes" class="aba">
+    <div class="cartao">
+      <h2>Testes</h2>
+      <p class="dica">Com o robô parado, em "esperando" ou "pronto". As rodas giram e a EDF liga: segure o robô.</p>
+      <div class="lista-testes">
+        <button data-acao="motores">Rodas<small>esq. frente/ré, dir. frente/ré</small></button>
+        <button data-acao="edf" class="perigo">EDF<small>3 s no nível atual (SW2 ligada)</small></button>
+        <button data-acao="m">Canais do mux<small>8 s: passe a mão na barra</small></button>
+        <button data-acao="ir">Controle IR<small>mostra os quadros recebidos</small></button>
+        <button data-acao="r">Leitura crua<small>16 canais e pino do IR</small></button>
+        <button data-acao="cor">Trocar cor da linha<small>só até desligar</small></button>
+      </div>
+      <button data-acao="parar" id="btParar" class="perigo grande" hidden>PARAR</button>
+      <pre id="saidaTeste" class="saida"></pre>
+    </div>
+  </section>
+
+  <!-- ======================================================= Terminal -->
+  <section id="aba-terminal" class="aba">
+    <div class="cartao">
+      <h2>Terminal</h2>
+      <pre id="terminal" class="saida alta"></pre>
+      <form id="formTerminal" class="linha-botoes">
+        <input id="inTerminal" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="comando (? para ajuda)">
+        <button class="primario">Enviar</button>
+      </form>
+    </div>
+    <div class="cartao">
+      <h2>Conexão</h2>
+      <div class="param">
+        <div class="param-txt"><b>senha</b><span>A do <code>BLE_SENHA</code> no config.h. Fica guardada neste celular.</span></div>
+        <div class="param-ctl"><input id="inSenha" type="password" autocomplete="off" value="1234"></div>
+      </div>
+      <p class="dica" id="versao"></p>
+    </div>
+  </section>
+</main>
+
+<nav class="abas">
+  <button data-aba="ajustes" class="ativa"><span>⚙</span>Ajustes</button>
+  <button data-aba="sensores"><span>▥</span>Sensores</button>
+  <button data-aba="partida"><span>⏱</span>Partida</button>
+  <button data-aba="testes"><span>⚡</span>Testes</button>
+  <button data-aba="terminal"><span>›_</span>Terminal</button>
+</nav>
+
+<div id="toast" class="toast" hidden></div>
+<script src="app.js"></script>
+</body>
+</html>

@@ -68,6 +68,8 @@ Igual ao do Dreamcast (`ir.h/.cpp` copiados sem mudança; detalhes no [README do
 7. **Parada:** em "pronto", com as rodas no ar, partida e parada pelo controle. Depois no chão, no nível 0, com a mão perto.
 
 ## Console pelo celular (Bluetooth)
+Há um app com botões para isso em [`app/`](../app/README.md). Abaixo, o uso por um terminal comum.
+
 O mesmo console da USB, pelo BLE do ESP32-C3 (não é Bluetooth clássico: não aparece na lista de pareamento do celular, só dentro do app).
 1. App: **Android "Serial Bluetooth Terminal"** (Kai Morich) → menu → Devices → aba **Bluetooth LE** → "Perseguidor-qx". **iOS: "Bluefruit Connect"** → conectar → UART.
 2. Mande `senha=1234` (troque `BLE_SENHA` no `config.h` antes da competição). Sem a senha, nenhum comando vale: qualquer celular por perto conseguiria mandar `motores` ou `edf`.

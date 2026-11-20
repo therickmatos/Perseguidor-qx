@@ -4,7 +4,7 @@ Robô perseguidor de linha com sucção por EDF (QX-Motor 30 mm), placa **Galil�
 
 > Foto do robô: pendente, depois da montagem (vai para [`docs/imagens/`](docs/imagens/)).
 
-- **ESP32-C3 SuperMini**, firmware próprio (`firmware/principal/`), console pela USB
+- **ESP32-C3 SuperMini**, firmware próprio (`firmware/principal/`), console pela USB e pelo Bluetooth, com app para o celular (`app/`)
 - **TB6612FNG** para os dois motores; rodas de Ø22 mm
 - **Barra de sensores V1**: 12× QRE1113 + 74HC4067, presa em braços impressos à frente da placa
 - **EDF QX-Motor 30 mm** por ESC, presa num anel impresso com a entrada a ~2 mm do chão; chave SW2 no sinal do ESC
@@ -23,6 +23,7 @@ Robô perseguidor de linha com sucção por EDF (QX-Motor 30 mm), placa **Galil�
 | testar a barra na bancada | [`firmware/teste_barra/`](firmware/teste_barra/) |
 | comprar os componentes | [`docs/BOM.md`](docs/BOM.md) |
 | anotar medidas e testes | [`docs/testes.md`](docs/testes.md) |
+| ajustar pelo celular (app Android) | [`app/README.md`](app/README.md) |
 
 ## Estado (17/11/2026)
 - [x] Esquemático no EasyEDA Pro, corrigido em 17/11 (rótulos de rede no lugar dos netports; `BAT` → `VBAT` no XT60). O `.epro` entra no repositório depois de revisado
@@ -48,6 +49,7 @@ Depende de acesso ao EasyEDA ou da montagem:
 | [`mecanica/`](mecanica/README.md) | `stl/` (peças para imprimir e DXF dos furos da placa), `scripts/` (geradores em Python) e o README com ferragens, montagem e impressão |
 | [`firmware/`](firmware/README.md) | `principal/` (competição), `teste_barra/` (bancada), `testes/` (simulador e teste do IR no PC) |
 | [`docs/`](docs/) | `BOM.md`, `testes.md` e `imagens/` |
+| [`app/`](app/README.md) | página instalável no Android (Web Bluetooth) para ajustar o robô |
 
 Projetos irmãos: o perseguidor [RUSH - Dreamcast](https://github.com/therickmatos/Perseguidor-de-linha), de onde vem o controle do firmware, e o seguidor [RUSH - SATURN](https://github.com/therickmatos/Seguidor-de-linha), de onde vem o teste da barra.
 
