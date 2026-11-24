@@ -172,27 +172,27 @@ struct Robo {
 };
 
 // Leitura bruta de cada sensor no preto e no branco, em 8 bits como no
-// simulador do Dreamcast (a barra da alto no preto). O ADC do ESP32-C3 e de
-// 12 bits: ler() multiplica por 16.
+// simulador do Dreamcast. Nesta barra a leitura sobe com a reflexao (branco
+// alto, medido no robo em 24/11/2026). O ADC do ESP32-C3 e de 12 bits:
+// ler() multiplica por 16.
 static double PRETO[N_SENSORES], BRANCO[N_SENSORES];
 static double ESCALA_BAT = 256;
 
 static void sensoresIguais() {
   for (int i = 0; i < N_SENSORES; i++) {
-    PRETO[i] = 210;
-    BRANCO[i] = 40;
+    PRETO[i] = 40;
+    BRANCO[i] = 210;
   }
 }
 
 // O que o robo faz com uma leitura crua de 12 bits: Barra::normalizar()
-// (0..1000, 1000 = linha; linha branca inverte) e a conversao de hwLerBarra()
+// (0..1000, 1000 = linha; linha preta inverte) e a conversao de hwLerBarra()
 // para 0..255. Manter igual ao barra.cpp e ao hw.cpp.
 static uint16_t CAL_MIN[N_SENSORES], CAL_MAX[N_SENSORES];
 static uint8_t normalizarComoRobo(int i, uint16_t cru) {
   int32_t v = ((int32_t)cru - CAL_MIN[i]) * 1000 / ((int32_t)CAL_MAX[i] - CAL_MIN[i]);
   if (v < 0) v = 0;
   else if (v > 1000) v = 1000;
-  v = 1000 - v;                                       // linha branca
   return (uint8_t)((v * 255 + 500) / 1000);
 }
 
@@ -250,8 +250,8 @@ static Resultado ensaiar(const Pista &p, const Parametros &par, uint8_t nivel,
                          double sParar, uint16_t esperaMs = 0, double tPararMs = -1) {
   // calibracao: tudo preto e tudo branco (minimo e maximo de cada sensor)
   for (int i = 0; i < N_SENSORES; i++) {
-    CAL_MIN[i] = (uint16_t)(16 * BRANCO[i]);
-    CAL_MAX[i] = (uint16_t)(16 * PRETO[i]);
+    CAL_MIN[i] = (uint16_t)(16 * PRETO[i]);
+    CAL_MAX[i] = (uint16_t)(16 * BRANCO[i]);
     if (CAL_MAX[i] - CAL_MIN[i] < 150) { std::printf("calibracao falhou\n"); std::exit(2); }
   }
 
@@ -536,9 +536,9 @@ int main(int argc, char **argv) {
   // Sensores desiguais (contraste de 60 a 170 contagens), borda mais borrada
   // e PWM multiplicado por 1,2 (bateria abaixo de 'vref')
   for (int i = 0; i < N_SENSORES; i++) {
-    double contraste = 115 + 55 * ruido(), fundo = 45 + 20 * ruido();
-    BRANCO[i] = fundo;
-    PRETO[i] = fundo + contraste;
+    double contraste = 115 + 55 * ruido(), escuro = 45 + 20 * ruido();
+    PRETO[i] = escuro;
+    BRANCO[i] = escuro + contraste;
   }
   BORDA = 6.0;
   ESCALA_BAT = 307;

@@ -17,6 +17,8 @@ Firmware: [`firmware/teste_barra/`](../firmware/teste_barra/) (o mesmo `barra.h/
 - [ ] Repetir `m` e `c` com a barra ligada na placa Galiléia3 (S0..S3 = GPIO0..3, SIG = GPIO4: o `teste_barra.ino` deste repositório já está com esses pinos).
 - [ ] Passar os valores do `t` para `LEITURA_*` em `firmware/principal/config.h` e conferir o tempo no `?` do firmware principal (tem de ficar abaixo de 70 % do `PERIODO_US`).
 
+- **24/11/2026, no robô** (barra nos braços, `teste_barra`, 4 amostras, t = 2055 µs): os 12 sensores respondem. Cru sobre papel branco ≈ 1640–1690, sobre a fita preta ≈ 230–250; ruído ±10. **A leitura sobe com a reflexão** (branco alto), ao contrário do que o `barra.cpp` supunha: a inversão de cor foi corrigida (linha preta inverte). Nos dois casos os sensores aparecem em blocos de 4 (S0–S3, S4–S7, S8–S11): conferir com o `m` e a largura da fita.
+
 ## Primeira energização (placa Galiléia3)
 Fazer nesta ordem, com o multímetro, **sem a SuperMini, a barra e o KY-022 na placa** até o passo 4.
 

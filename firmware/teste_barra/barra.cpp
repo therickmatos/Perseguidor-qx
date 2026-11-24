@@ -90,8 +90,9 @@ uint16_t Barra::normalizar(uint8_t i) const {
   } else {
     v = (int32_t)_raw[i] * 1000 / LEITURA_MAX;   // sem calibracao: escala cheia do ADC
   }
-  // No QRE1113 o preto gera leitura alta; para linha branca, inverte.
-  if (_cor == LINHA_BRANCA) v = 1000 - v;
+  // Nesta barra a leitura SOBE com a reflexao: branco ~1650, preto ~240
+  // (medido no robo em 24/11/2026). Para linha preta, inverte.
+  if (_cor == LINHA_PRETA) v = 1000 - v;
   return (uint16_t)v;
 }
 
