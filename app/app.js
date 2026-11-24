@@ -75,16 +75,23 @@ let toastT = 0;
 function avisar(txt, ms = 2600) {
   const t = $('#toast');
   t.textContent = txt;
+  t.hidden = true;
+  void t.offsetWidth;          // recomeca a animacao de entrada
   t.hidden = false;
   clearTimeout(toastT);
   toastT = setTimeout(() => { t.hidden = true; }, ms);
 }
 
+// tipo: 'ok' (ponto verde), 'meio' (amarelo piscando), 'erro' (vermelho) ou '' (cinza)
 function estado(txt, tipo = '') {
-  const e = $('#estado');
-  e.textContent = txt;
-  e.className = 'estado ' + tipo;
+  $('#estadoTxt').textContent = txt;
+  $('#estado').className = 'estado ' + tipo;
 }
+
+const menos = (n) => (n < 0 ? '−' + Math.abs(n) : String(n));          // sinal de menos tipografico
+const comSinal = (n) => (n > 0 ? '+' + n : menos(n));
+const virgula = (s) => String(s).replace('.', ',');
+const lerNum = (s) => parseFloat(String(s).replace(',', '.').replace('−', '-'));
 
 // ------------------------------------------------------------------ terminal
 const TERM_MAX = 600;
@@ -103,7 +110,7 @@ function termDesenhar() {
   for (const [t, meu] of termLinhas) {
     const d = document.createElement('div');
     if (meu) d.className = 'eu';
-    d.textContent = meu ? '> ' + t : t;
+    d.textContent = meu ? '› ' + t : t;
     frag.appendChild(d);
   }
   el.appendChild(frag);
@@ -151,7 +158,7 @@ class Robo {
       throw new Error('O robô recusou a senha. Confira na aba Terminal.');
     }
     this.pronto = true;
-    estado('conectado: ' + (this.disp.name || 'robô'), 'ok');
+    estado('conectado · ' + (this.disp.name || 'robô'), 'ok');
   }
 
   desconectar() {
@@ -257,55 +264,64 @@ const valores = {};       // o que o robo confirmou
 let naoSalvo = false;
 const tEnvio = {};
 
+const CHEVRON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fraco)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
+
 function montarParametros() {
   const raiz = $('#grupos');
   for (const [titulo, aberto, lista] of GRUPOS) {
     const d = document.createElement('details');
     d.className = 'cartao grupo';
     d.open = aberto;
-    d.innerHTML = `<summary>${titulo}</summary>`;
+    d.innerHTML = `<summary><h2>${titulo}</h2><span class="ponto-grupo"></span>${CHEVRON}</summary><div class="params"></div>`;
+    const caixa = d.querySelector('.params');
     for (const [nome] of lista) {
       const def = DEF[nome];
       const div = document.createElement('div');
       div.className = 'param';
       div.id = 'p-' + nome;
       div.innerHTML = `
-        <div class="param-txt"><b>${nome}</b><span>${def.txt}</span></div>
-        <div class="param-ctl">
+        <div class="param-txt"><div class="param-nome">${nome}</div><div class="param-desc">${def.txt}</div></div>
+        <div class="passo">
           <button type="button" data-d="-1" aria-label="diminuir ${nome}">−</button>
-          <input type="number" inputmode="decimal" min="${def.min}" max="${def.max}" step="${def.passo}">
+          <input type="text" inputmode="decimal" autocomplete="off" aria-label="${nome}" placeholder="—">
           <button type="button" data-d="1" aria-label="aumentar ${nome}">+</button>
         </div>`;
       const inp = div.querySelector('input');
       div.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
-        const atual = parseFloat(inp.value);
+        const atual = lerNum(inp.value);
         let v = (isNaN(atual) ? def.min : atual) + Number(b.dataset.d) * def.passo;
         v = Math.min(def.max, Math.max(def.min, v));
-        inp.value = formatar(def, v);
+        inp.value = exibir(def, v);
         programarEnvio(nome, 500);
       }));
-      inp.addEventListener('input', () => { div.className = 'param mudou'; programarEnvio(nome, 1200); });
+      inp.addEventListener('input', () => programarEnvio(nome, 1200));
       inp.addEventListener('change', () => programarEnvio(nome, 0));
-      d.appendChild(div);
+      caixa.appendChild(div);
     }
     raiz.appendChild(d);
   }
 }
 
+// Como o robo le (ponto decimal) e como aparece na tela (virgula)
 function formatar(def, v) {
   return def.decimais ? Number(v).toFixed(def.decimais).replace(/0+$/, '').replace(/\.$/, '') : String(Math.round(v));
 }
+function exibir(def, v) { return virgula(formatar(def, v)); }
 
 function mostrarValor(nome, v) {
   const div = document.getElementById('p-' + nome);
   if (!div) return;
   const inp = div.querySelector('input');
-  if (document.activeElement !== inp) inp.value = formatar(DEF[nome], v);
+  if (document.activeElement !== inp) inp.value = exibir(DEF[nome], v);
 }
 
+// cls: 'mudou' (esperando o robo), 'ok' (robo confirmou), 'falhou' ou '' (sem marca)
 function marcar(nome, cls) {
   const div = document.getElementById('p-' + nome);
-  if (div) div.className = 'param ' + cls;
+  if (!div) return;
+  div.className = 'param ' + cls;
+  const g = div.closest('details');
+  g.classList.toggle('tem-mudanca', !!g.querySelector('.param.mudou, .param.ok, .param.falhou'));
 }
 
 function programarEnvio(nome, ms) {
@@ -328,7 +344,7 @@ function lerPares(linhas) {
 async function enviarParametro(nome, silencioso = false) {
   const def = DEF[nome];
   const inp = document.querySelector('#p-' + nome + ' input');
-  const v = parseFloat(String(inp.value).replace(',', '.'));
+  const v = lerNum(inp.value);
   if (isNaN(v) || v < def.min || v > def.max) {
     marcar(nome, 'falhou');
     if (!silencioso) avisar(`${nome}: de ${def.min} a ${def.max}`);
@@ -359,9 +375,8 @@ async function enviarParametro(nome, silencioso = false) {
 function marcarNaoSalvo(sim) {
   naoSalvo = sim;
   $('#btSalvar').classList.toggle('pendente', sim);
-  $('#dicaSalvar').innerHTML = sim
-    ? '<b>Há mudanças não gravadas.</b> Elas valem até desligar o robô.'
-    : 'As mudanças valem na hora, até desligar. <b>Salvar no robô</b> grava de vez.';
+  $('#dicaNaoSalvo').hidden = !sim;
+  $('#dicaSalvo').hidden = sim;
 }
 
 async function lerParametros() {
@@ -378,15 +393,21 @@ async function lerEstado() {
   for (const l of r) {
     let m;
     if ((m = l.match(/^calibracao: (.*?) \| linha (\w+)/))) {
-      $('#rCal').textContent = m[1] === 'ok' ? 'ok' : m[1] === 'falta' ? 'falta' : 'gravada (botão 2)';
-      $('#rCal').style.color = m[1] === 'ok' ? 'var(--ok)' : 'var(--alerta)';
-      $('#rLinha').textContent = m[2] === 'BRANCA' ? 'branca / fundo preto' : 'preta / fundo branco';
+      const [val, sub] = m[1] === 'ok' ? ['ok', 'barra calibrada']
+        : m[1] === 'falta' ? ['falta', 'botão 1 calibra'] : ['gravada', 'botão 2 para usar'];
+      $('#rCal').textContent = val;
+      $('#rCal').style.color = m[1] === 'ok' ? 'var(--ok)' : 'var(--alerta-txt)';
+      $('#rCalSub').textContent = sub;
+      $('#rLinha').textContent = m[2] === 'BRANCA' ? 'branca' : 'preta';
+      $('#rLinhaSub').textContent = m[2] === 'BRANCA' ? 'fundo preto' : 'fundo branco';
     } else if ((m = l.match(/^nivel (\d+): curva (\d+) reta (\d+) EDF (\d+)/))) {
-      $('#rNivel').textContent = `${m[1]} (curva ${m[2]}, reta ${m[3]}, EDF ${m[4]})`;
+      $('#rNivel').textContent = m[1];
+      $('#rNivelSub').textContent = `curva ${m[2]} · reta ${m[3]} · EDF ${m[4]}`;
     } else if ((m = l.match(/^leitura da barra: (\d+) us \(max (\d+)\).*ciclo de (\d+)/))) {
       const lento = Number(m[2]) * 10 > Number(m[3]) * 7;
-      $('#rLeitura').textContent = `${m[1]} µs (máx ${m[2]}) de ${m[3]}`;
-      $('#rLeitura').style.color = lento ? 'var(--perigo)' : '';
+      $('#rLeitura').textContent = `${m[1]} µs`;
+      $('#rLeitura').style.color = lento ? 'var(--perigo-txt)' : '';
+      $('#rLeituraSub').textContent = `máx ${m[2]} de ${m[3]}` + (lento ? ' (lenta)' : '');
     } else if ((m = l.match(/^modulo de inicio: arena (\d+)(.*?) ->/))) {
       $('#inArena').value = m[1];
       $('#rArena').textContent = `Arena gravada: ${m[1]}${m[2] ? ' (padrão, nunca programada)' : ''}.`;
@@ -412,12 +433,13 @@ function listarPerfis(sel) {
 
 // ------------------------------------------------------------------ sensores
 let fluxoAtual = null;
+let sensoresVivo = false;
 function montarBarras() {
   const raiz = $('#barras');
   for (let i = 0; i < 12; i++) {
     const b = document.createElement('div');
-    b.className = 'b';
-    b.innerHTML = `<i></i><span>S${i}</span>`;
+    b.className = 'sens';
+    b.innerHTML = `<span class="sv"></span><div class="sb"><i></i></div><span class="sr">S${i}</span>`;
     raiz.appendChild(b);
   }
 }
@@ -431,53 +453,87 @@ function linhaSensores(l) {
   if (!m) return;
   const v = m[1].trim().split('\t').map(Number);
   const barras = $('#barras').children;
-  v.forEach((x, i) => { barras[i].firstChild.style.height = (x / 255 * 100) + '%'; });
+  v.forEach((x, i) => {
+    const col = barras[i];
+    const barra = col.querySelector('i');
+    barra.style.height = (x / 255 * 100).toFixed(1) + '%';
+    barra.classList.toggle('on', x > 128);
+    col.firstChild.textContent = x;
+  });
   const erro = Number(m[2]);
-  $('#sErro').textContent = erro;
+  $('#sErro').textContent = comSinal(erro);
   $('#sVista').textContent = m[3] === 'L' ? 'vista' : 'perdida';
-  $('#sVista').style.color = m[3] === 'L' ? 'var(--ok)' : 'var(--perigo)';
+  $('#sVista').style.color = m[3] === 'L' ? 'var(--ok)' : 'var(--perigo-txt)';
   $('#sCruz').textContent = m[4] === 'X' ? 'sim' : 'não';
   $('#erroMarca').style.left = (50 + Math.max(-1, Math.min(1, erro / 5500)) * 50) + '%';
 }
 
-async function alternarSensores() {
+function mostrarSensoresVivo(sim) {
+  sensoresVivo = sim;
   const bt = $('#btSensores');
+  bt.textContent = sim ? 'Parar' : 'Começar';
+  bt.classList.toggle('primario', !sim);
+  $('#aoVivo').hidden = !sim;
+}
+
+async function alternarSensores() {
   if (fluxoAtual) { fluxoAtual.parar(); return; }
   $('#sAviso').textContent = '';
   fluxoAtual = robo.fluxo('s', linhaSensores);
-  bt.textContent = 'Parar';
+  mostrarSensoresVivo(true);
   try { await fluxoAtual.fim; } catch (e) { avisar(e.message); }
   fluxoAtual = null;
-  bt.textContent = 'Começar';
+  mostrarSensoresVivo(false);
 }
 
 // ------------------------------------------------------------------ partida
 let logCsv = '';
 let logDados = [];
 
+const MOTIVO_FIM = {
+  'COMANDO DE PARADA': 'parada pelo controle',
+  'PERDEU A LINHA': 'perdeu a linha',
+  'BOTAO': 'parada pelo botão',
+  'TEMPO MAXIMO': 'tempo máximo',
+};
+
+function resumoVazio(txt) {
+  $('#resumoVazio').textContent = txt;
+  $('#resumoVazio').hidden = false;
+  $('#resumoDados').hidden = true;
+  $('#rFim').hidden = true;
+}
+
 function lerResumo(linhas) {
-  const ul = $('#resumo');
-  ul.innerHTML = '';
-  const traduz = [
-    [/^fim: (.*?) \| andou ([\d.]+) s \| linhas de partida (\d+) \(~(\d+) voltas\)/, (m) => [
-      `Fim: <b>${m[1].toLowerCase()}</b>`, `Andou <b>${m[2].replace('.', ',')} s</b>`,
-      `Linhas de partida: <b>${m[3]}</b> (~${m[4]} voltas)`]],
-    [/^curva (\d+) reta (\d+) EDF (\d+) \| em reta (\d+) %/, (m) => [
-      `PWM curva <b>${m[1]}</b>, reta <b>${m[2]}</b>, EDF <b>${m[3]}</b>`, `Em reta: <b>${m[4]} %</b> do tempo`]],
-    [/^erro max (\d+) \| sem linha (\d+) ms/, (m) => [`Erro máximo: <b>${m[1]}</b>`, `Sem linha: <b>${m[2]} ms</b>`]],
-    [/^ciclo max (\d+) us \(periodo (\d+)\), atrasados (\d+)/, (m) => [
-      `Ciclo máximo: <b>${m[1]} µs</b> de ${m[2]}`,
-      `Ciclos atrasados: <b style="color:${m[3] === '0' ? 'var(--ok)' : 'var(--perigo)'}">${m[3]}</b>`]],
-  ];
+  const t = (id, txt) => { $('#' + id).textContent = txt; };
   let algum = false;
   for (const l of linhas) {
-    if (/nenhuma partida/.test(l)) { ul.innerHTML = '<li class="dica">Nenhuma partida desde que o robô ligou.</li>'; return; }
-    for (const [re, f] of traduz) {
-      const m = l.match(re);
-      if (m) for (const t of f(m)) { const li = document.createElement('li'); li.innerHTML = t; ul.appendChild(li); algum = true; }
+    let m;
+    if (/nenhuma partida/.test(l)) return resumoVazio('Nenhuma partida desde que o robô ligou.');
+    if ((m = l.match(/^fim: (.*?) \| andou ([\d.]+) s \| linhas de partida (\d+) \(~(\d+) voltas\)/))) {
+      t('rFim', MOTIVO_FIM[m[1]] || m[1].toLowerCase());
+      $('#rFim').hidden = false;
+      t('rAndou', virgula(Number(m[2]).toFixed(1)));
+      t('rLinhas', m[3]);
+      $('#rLinhasSub').innerHTML = `${m[3] === '1' ? 'linha' : 'linhas'} de partida<br>~${m[4]} ${m[4] === '1' ? 'volta' : 'voltas'}`;
+      algum = true;
+    } else if ((m = l.match(/^curva (\d+) reta (\d+) EDF (\d+) \| em reta (\d+) %/))) {
+      t('rPwm', `${m[1]} · ${m[2]}`);
+      t('rPwmSub', `EDF ${m[3]}`);
+      t('rEmReta', `${m[4]} %`);
+    } else if ((m = l.match(/^erro max (\d+) \| sem linha (\d+) ms/))) {
+      t('rErroMax', m[1]);
+      t('rSemLinha', `${m[2]} ms`);
+    } else if ((m = l.match(/^ciclo max (\d+) us \(periodo (\d+)\), atrasados (\d+)/))) {
+      t('rCiclo', `${m[1]} µs`);
+      t('rCicloSub', `de ${m[2]}`);
+      t('rAtrasados', m[3]);
+      $('#rAtrasados').style.color = m[3] === '0' ? 'var(--ok)' : 'var(--perigo-txt)';
     }
   }
-  if (!algum) ul.innerHTML = '<li class="dica">Sem resposta do robô.</li>';
+  if (!algum) return resumoVazio('Sem resposta do robô.');
+  $('#resumoVazio').hidden = true;
+  $('#resumoDados').hidden = false;
 }
 
 function lerLog(linhas) {
@@ -492,66 +548,63 @@ function lerLog(linhas) {
   return true;
 }
 
-function cor(nome) { return getComputedStyle(document.documentElement).getPropertyValue(nome).trim(); }
-
+// Grafico em SVG: as cores vem do CSS (classes), entao segue o tema claro/escuro sozinho.
+// Colunas de logDados: ms (0 = ultima amostra), erro, esq, dir, vista, faixa, reta
 function desenharGrafico() {
-  const cv = $('#grafico');
-  const dpr = window.devicePixelRatio || 1;
-  const L = cv.clientWidth, A = 300;
-  cv.width = L * dpr; cv.height = A * dpr;
-  const g = cv.getContext('2d');
-  g.scale(dpr, dpr);
-  g.clearRect(0, 0, L, A);
-  g.font = '11px system-ui, sans-serif';
-  const fraco = cor('--fraco');
-  if (!logDados.length) {
-    g.fillStyle = fraco;
-    g.fillText('Toque em "Ler registro" depois de uma partida.', 12, A / 2);
-    return;
-  }
-  const esq = 34, dir = 8;
-  const pA = { y: 8, h: 120, min: -5500, max: 5500 };     // erro
-  const pB = { y: 156, h: 120, min: -255, max: 255 };     // rodas
-  const t0 = logDados[0][0], t1 = logDados[logDados.length - 1][0] || 0;
-  const x = (t) => esq + (t - t0) / ((t1 - t0) || 1) * (L - esq - dir);
+  const svg = $('#grafico');
+  const W = Math.round(svg.getBoundingClientRect().width);
+  if (!W) return;                       // aba escondida: desenha ao abrir
+  const H = 292, L = 40, R = 6;
+  const pA = { y: 22, h: 110, min: -5500, max: 5500, tit: 'ERRO' };
+  const pB = { y: 162, h: 110, min: -255, max: 255, tit: 'PWM DAS RODAS' };
+  const f = (n) => n.toFixed(1);
+  const n = logDados.length;
+  const t0 = n ? logDados[0][0] : -2400, t1 = n ? logDados[n - 1][0] : 0;
+  const x = (t) => L + (t - t0) / ((t1 - t0) || 1) * (W - L - R);
   const y = (p, v) => p.y + (1 - (Math.max(p.min, Math.min(p.max, v)) - p.min) / (p.max - p.min)) * p.h;
 
+  const moldura = [pA, pB].map((p) => `M${L} ${p.y}H${W - R}V${p.y + p.h}H${L}Z`).join('');
+  let s = `<path class="painel" d="${moldura}"/>`;
+
+  // trechos sem linha (vista = 0), nos dois paineis
+  let sem = '';
+  for (let i = 0; i < n; i++) {
+    if (logDados[i][4] !== 0) continue;
+    let j = i;
+    while (j + 1 < n && logDados[j + 1][4] === 0) j++;
+    const xa = x(logDados[i][0]);
+    const xb = j + 1 < n ? x(logDados[j + 1][0]) : Math.min(W - R, x(logDados[j][0]) + 2);
+    for (const p of [pA, pB]) sem += `M${f(xa)} ${p.y}H${f(Math.max(xb, xa + 2))}V${p.y + p.h}H${f(xa)}Z`;
+    i = j;
+  }
+  if (sem) s += `<path class="sem" d="${sem}"/>`;
+  s += `<path class="moldura" d="${moldura}"/>`;
+  if (n) s += `<path class="zero" d="${[pA, pB].map((p) => `M${L} ${f(y(p, 0))}H${W - R}`).join('')}"/>`;
+
+  if (n) {
+    const faixa = logDados.filter((a) => a[5]).map((a) => `M${f(x(a[0]))} ${pA.y + 1}V${pA.y + 9}`).join('');
+    if (faixa) s += `<path class="faixa" d="${faixa}"/>`;
+    const serie = (p, col, cls) => `<path class="serie ${cls}" d="${
+      logDados.map((a, i) => (i ? 'L' : 'M') + f(x(a[0])) + ' ' + f(y(p, a[col]))).join('')}"/>`;
+    s += serie(pA, 1, 'erro') + serie(pB, 2, 'esq') + serie(pB, 3, 'dir');
+  }
+
   for (const p of [pA, pB]) {
-    // trechos sem linha
-    g.fillStyle = cor('--c-sem');
-    for (let i = 0; i < logDados.length; i++) {
-      if (logDados[i][4] === 0) {
-        const xa = x(logDados[i][0]), xb = i + 1 < logDados.length ? x(logDados[i + 1][0]) : xa + 2;
-        g.fillRect(xa, p.y, Math.max(2, xb - xa), p.h);
-      }
-    }
-    g.strokeStyle = cor('--borda'); g.lineWidth = 1;
-    g.strokeRect(esq, p.y, L - esq - dir, p.h);
-    g.beginPath(); g.moveTo(esq, y(p, 0)); g.lineTo(L - dir, y(p, 0)); g.stroke();
-    g.fillStyle = fraco; g.textAlign = 'right';
-    g.fillText(String(p.max), esq - 4, p.y + 9);
-    g.fillText('0', esq - 4, y(p, 0) + 4);
-    g.fillText(String(p.min), esq - 4, p.y + p.h);
+    s += `<text class="tit" x="${L}" y="${p.y - 9}">${p.tit}</text>`;
+    s += `<text class="fim" x="${L - 5}" y="${p.y + 8}">${p.max}</text>`;
+    s += `<text class="fim" x="${L - 5}" y="${f(y(p, 0) + 3)}">0</text>`;
+    s += `<text class="fim" x="${L - 5}" y="${p.y + p.h}">${menos(p.min)}</text>`;
   }
-  // faixas atravessadas
-  g.strokeStyle = cor('--c-faixa'); g.lineWidth = 2;
-  for (const a of logDados) if (a[5]) {
-    g.beginPath(); g.moveTo(x(a[0]), pA.y); g.lineTo(x(a[0]), pA.y + 6); g.stroke();
+  s += `<text x="${L}" y="${H - 3}">${menos(Number((t0 / 1000).toFixed(1))).replace('.', ',')} s</text>`;
+  s += `<text class="fim" x="${W - R}" y="${H - 3}">fim</text>`;
+  if (!n) {
+    const cx = (L + W - R) / 2, cy = pA.y + pA.h / 2;
+    s += `<text class="vazio" x="${cx}" y="${cy - 3}">Toque em "Ler registro"</text>`;
+    s += `<text class="vazio" x="${cx}" y="${cy + 14}">depois de uma partida.</text>`;
   }
-  const serie = (p, col, nomeCor) => {
-    g.strokeStyle = cor(nomeCor); g.lineWidth = 1.8; g.beginPath();
-    logDados.forEach((a, i) => { const px = x(a[0]), py = y(p, a[col]); if (i) g.lineTo(px, py); else g.moveTo(px, py); });
-    g.stroke();
-  };
-  serie(pA, 1, '--c-erro');
-  serie(pB, 2, '--c-esq');
-  serie(pB, 3, '--c-dir');
-  g.fillStyle = fraco; g.textAlign = 'left';
-  g.fillText('erro', esq + 4, pA.y + 12);
-  g.fillText('PWM das rodas', esq + 4, pB.y + 12);
-  g.textAlign = 'center';
-  g.fillText((t0 / 1000).toFixed(1).replace('.', ',') + ' s', x(t0) + 14, A - 4);
-  g.fillText('fim', x(t1) - 10, A - 4);
+
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.innerHTML = s;
 }
 
 // ------------------------------------------------------------------ testes
@@ -560,6 +613,19 @@ function saidaTeste(txt, limpar = false) {
   if (limpar) { el.textContent = ''; if (!txt) return; }
   el.textContent += txt + '\n';
   el.scrollTop = el.scrollHeight;
+}
+
+// Teste rodando: o cartao dele fica destacado e o nome aparece sobre a saida
+let testeAtivo = null;
+async function rodarTeste(bt, acao) {
+  if (testeAtivo) return avisar('Pare o teste em andamento antes.');
+  testeAtivo = bt;
+  bt.classList.add('ativo');
+  $('#saidaNome').textContent = bt.querySelector('.t').textContent;
+  try { await acao(); } finally {
+    bt.classList.remove('ativo');
+    testeAtivo = null;
+  }
 }
 
 async function testeComParar(cmd, aoLinha) {
@@ -575,20 +641,27 @@ async function testeComParar(cmd, aoLinha) {
 async function conectar() {
   if (!navigator.bluetooth) { $('#avisoBT').hidden = false; return; }
   if (robo.conectado) { robo.desconectar(); return; }
+  const bt = $('#btConectar');
   try {
     if (!robo.disp) await robo.escolher();
+    bt.textContent = 'Conectando…';
+    bt.disabled = true;
     await robo.conectar($('#inSenha').value.trim());
+    bt.disabled = false;
     atualizarBotaoConectar();
     await lerParametros();
     await lerEstado();
     marcarNaoSalvo(false);
     avisar('Conectado. Parâmetros lidos do robô.');
   } catch (e) {
-    if (e.name === 'NotFoundError') { estado('desconectado'); return; }   // cancelou a escolha
-    if (robo.conectado && !robo.pronto) robo.desconectar();
-    if (!robo.conectado) estado('desconectado', 'erro');
-    avisar(e.message, 4000);
+    if (e.name === 'NotFoundError' && !robo.disp) estado('desconectado');   // cancelou a escolha
+    else {
+      if (robo.conectado && !robo.pronto) robo.desconectar();
+      if (!robo.conectado) estado('desconectado', 'erro');
+      avisar(e.message, 4000);
+    }
   }
+  bt.disabled = false;
   atualizarBotaoConectar();
 }
 
@@ -610,7 +683,11 @@ const ACOES = {
       if (div.classList.contains('mudou') || div.classList.contains('falhou')) await enviarParametro(nome, true);
     }
     const r = await robo.comando('salvar', { fim: (l) => /gravados|ERRO/.test(l), max: 3000 });
-    if (r.some((l) => /parametros gravados/.test(l))) { marcarNaoSalvo(false); avisar('Gravado no robô.'); }
+    if (r.some((l) => /parametros gravados/.test(l))) {
+      for (const nome of Object.keys(DEF)) if (document.getElementById('p-' + nome).classList.contains('ok')) marcar(nome, '');
+      marcarNaoSalvo(false);
+      avisar('Gravado no robô.');
+    }
     else avisar('O robô não confirmou a gravação: ' + (r.join(' ') || 'sem resposta'), 4000);
   },
 
@@ -650,7 +727,7 @@ const ACOES = {
     let falhas = 0;
     for (const [k, v] of Object.entries(pf)) {
       if (!DEF[k]) continue;
-      document.querySelector('#p-' + k + ' input').value = formatar(DEF[k], v);
+      document.querySelector('#p-' + k + ' input').value = exibir(DEF[k], v);
       if (!(await enviarParametro(k, true))) falhas++;
     }
     await lerEstado();
@@ -737,7 +814,7 @@ function trocarAba(nome) {
   document.querySelectorAll('.abas button').forEach((b) => b.classList.toggle('ativa', b.dataset.aba === nome));
   if (nome === 'terminal') termDesenhar();
   if (nome === 'partida') desenharGrafico();
-  if (nome !== 'sensores' && fluxoAtual && $('#btSensores').textContent === 'Parar') fluxoAtual.parar();
+  if (nome !== 'sensores' && fluxoAtual && sensoresVivo) fluxoAtual.parar();
   guardar('aba', nome);
   window.scrollTo(0, 0);
 }
@@ -757,10 +834,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const b = ev.target.closest('[data-acao]');
     if (!b || !ACOES[b.dataset.acao]) return;
     const acao = b.dataset.acao;
-    const longa = !['parar', 'sensores', 'ir', 'r'].includes(acao);
-    if (longa) b.disabled = true;
-    try { await ACOES[acao](); } catch (e) { avisar(e.message, 3500); }
-    if (longa) b.disabled = false;
+    try {
+      if (b.closest('.lista-testes')) { await rodarTeste(b, ACOES[acao]); return; }
+      const longa = !['parar', 'sensores'].includes(acao);
+      if (longa) b.disabled = true;
+      try { await ACOES[acao](); } finally { if (longa) b.disabled = false; }
+    } catch (e) { avisar(e.message, 3500); }
   });
 
   $('#formTerminal').addEventListener('submit', async (ev) => {

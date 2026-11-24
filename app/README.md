@@ -39,6 +39,7 @@ O console só responde com o robô parado ("esperando" ou "pronto"); durante a c
 |---|---|
 | `index.html`, `estilo.css`, `app.js` | a página (sem bibliotecas externas) |
 | `manifest.webmanifest`, `icones/` | nome, cores e ícones do app instalado |
+| `fontes/` | Archivo e JetBrains Mono (licença OFL, junto), guardadas aqui para o app abrir sem internet |
 | `sw.js` | guarda a página no celular. **Troque a `VERSAO` a cada mudança** nos arquivos |
 
 ## APK (depois)

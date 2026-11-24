@@ -5,54 +5,58 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Perseguidor-qx</title>
 <meta name="description" content="Ajuste do robô Perseguidor-qx pelo Bluetooth">
-<meta name="theme-color" content="#14181f">
+<meta name="theme-color" content="#f2f4f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d1015" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icones/icone.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icones/icone-192.png">
+<link rel="preload" href="fontes/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fontes/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="estilo.css">
 </head>
 <body>
 <header class="topo">
+  <img src="icones/icone.svg" alt="" width="38" height="38">
   <div class="marca">
-    <img src="icones/icone.svg" alt="" width="28" height="28">
-    <div>
-      <h1>Perseguidor-qx</h1>
-      <span id="estado" class="estado">desconectado</span>
-    </div>
+    <h1>Perseguidor-qx</h1>
+    <div id="estado" class="estado"><i class="ponto"></i><span id="estadoTxt">desconectado</span></div>
   </div>
   <button id="btConectar" class="primario">Conectar</button>
 </header>
 
-<div id="avisoBT" class="aviso" hidden>
-  Este navegador não tem Web Bluetooth. No Android, abra esta página no <b>Chrome</b>
-  (endereço <b>https://</b>) e confira se o Bluetooth e a localização estão ligados.
+<div class="aviso-wrap">
+  <div id="avisoBT" class="aviso" hidden>
+    Este navegador não tem Web Bluetooth. No Android, abra esta página no <b>Chrome</b>
+    (endereço <b>https://</b>) e confira se o Bluetooth e a localização estão ligados.
+  </div>
 </div>
 
 <main>
   <!-- ======================================================= Ajustes -->
   <section id="aba-ajustes" class="aba ativa">
-    <div class="cartao" id="cartaoResumo">
-      <div class="grade-resumo">
-        <div><span class="rot">Calibração</span><b id="rCal">—</b></div>
-        <div><span class="rot">Linha</span><b id="rLinha">—</b></div>
-        <div><span class="rot">Nível</span><b id="rNivel">—</b></div>
-        <div><span class="rot">Leitura</span><b id="rLeitura">—</b></div>
+    <div class="cartao compacto">
+      <div class="grade">
+        <div class="bloco"><div class="rot">Calibração</div><div class="val" id="rCal">—</div><div class="sub" id="rCalSub"></div></div>
+        <div class="bloco"><div class="rot">Linha</div><div class="val txt" id="rLinha">—</div><div class="sub" id="rLinhaSub"></div></div>
+        <div class="bloco"><div class="rot">Nível</div><div class="val" id="rNivel">—</div><div class="sub" id="rNivelSub"></div></div>
+        <div class="bloco"><div class="rot">Leitura</div><div class="val" id="rLeitura">—</div><div class="sub" id="rLeituraSub"></div></div>
       </div>
-      <div class="linha-botoes">
+      <div class="botoes salvar">
         <button data-acao="atualizar">Ler do robô</button>
         <button data-acao="salvar" id="btSalvar" class="primario">Salvar no robô</button>
       </div>
-      <p class="dica" id="dicaSalvar">As mudanças valem na hora, até desligar. <b>Salvar no robô</b> grava de vez.</p>
+      <div class="nao-salvo" id="dicaNaoSalvo" hidden><span><b>Há mudanças não gravadas.</b> Elas valem até desligar o robô.</span></div>
+      <p class="dica" id="dicaSalvo">As mudanças valem na hora, até desligar. <b>Salvar no robô</b> grava de vez.</p>
     </div>
 
-    <div id="grupos"></div>
+    <div id="grupos" class="pilha"></div>
 
     <div class="cartao">
       <h2>Módulo de início</h2>
       <div class="param">
-        <div class="param-txt"><b>arena</b><span>Número da arena (par, 0 a 126). Grava na hora.</span></div>
+        <div class="param-txt"><div class="param-nome">arena</div><div class="param-desc">Número da arena (par, 0 a 126). Grava na hora.</div></div>
         <div class="param-ctl">
-          <input id="inArena" type="number" inputmode="numeric" min="0" max="126" step="2" value="0">
+          <input id="inArena" class="campo-num" type="number" inputmode="numeric" min="0" max="126" step="2" value="0" aria-label="arena">
           <button data-acao="arena">Gravar</button>
         </div>
       </div>
@@ -62,36 +66,38 @@
     <div class="cartao">
       <h2>Perfis no celular</h2>
       <p class="dica">Guarde um conjunto de parâmetros com um nome (por exemplo, "pista lab seca") e mande de volta ao robô depois.</p>
-      <div class="linha-botoes">
-        <select id="selPerfil"><option value="">(nenhum perfil)</option></select>
+      <div class="escolha">
+        <select id="selPerfil" aria-label="perfil"><option value="">(nenhum perfil)</option></select>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fraco)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <div class="botoes junto">
         <button data-acao="perfil-carregar">Mandar ao robô</button>
-      </div>
-      <div class="linha-botoes">
         <button data-acao="perfil-guardar">Guardar atual</button>
-        <button data-acao="perfil-apagar" class="perigo-leve">Apagar</button>
         <button data-acao="perfil-exportar">Exportar</button>
+        <button data-acao="perfil-apagar" class="perigo-leve">Apagar</button>
       </div>
-      <div class="linha-botoes">
-        <button data-acao="padrao" class="perigo-leve">Valores de fábrica</button>
-      </div>
+      <div class="separador"></div>
+      <button data-acao="padrao" class="perigo-contorno largo">Valores de fábrica</button>
     </div>
   </section>
 
   <!-- ======================================================= Sensores -->
   <section id="aba-sensores" class="aba">
     <div class="cartao">
-      <h2>Barra ao vivo</h2>
+      <div class="cab">
+        <h2>Barra ao vivo</h2>
+        <div id="aoVivo" class="ao-vivo" hidden><i class="ponto"></i>AO VIVO</div>
+      </div>
       <p class="dica">0 = fundo, 255 = em cima da linha. Precisa da calibração (botão 1 do robô).</p>
       <div id="barras" class="barras"></div>
       <div class="erro-trilho"><div id="erroMarca" class="erro-marca"></div></div>
-      <div class="grade-resumo">
-        <div><span class="rot">Erro</span><b id="sErro">—</b></div>
-        <div><span class="rot">Linha</span><b id="sVista">—</b></div>
-        <div><span class="rot">Faixa atravessada</span><b id="sCruz">—</b></div>
+      <div class="erro-escala"><span>−5500</span><span>erro</span><span>+5500</span></div>
+      <div class="grade tres">
+        <div class="bloco"><div class="rot">Erro</div><div class="val" id="sErro">—</div></div>
+        <div class="bloco"><div class="rot">Linha</div><div class="val" id="sVista">—</div></div>
+        <div class="bloco"><div class="rot">Faixa atravessada</div><div class="val" id="sCruz">—</div></div>
       </div>
-      <div class="linha-botoes">
-        <button data-acao="sensores" id="btSensores" class="primario">Começar</button>
-      </div>
+      <button data-acao="sensores" id="btSensores" class="primario largo">Começar</button>
       <p class="dica" id="sAviso"></p>
     </div>
   </section>
@@ -99,16 +105,36 @@
   <!-- ======================================================= Partida -->
   <section id="aba-partida" class="aba">
     <div class="cartao">
-      <h2>Última partida</h2>
-      <ul id="resumo" class="lista-res"><li class="dica">Toque em "Ler resumo" depois de uma partida.</li></ul>
-      <div class="linha-botoes">
+      <div class="cab">
+        <h2>Última partida</h2>
+        <span id="rFim" class="selo" hidden></span>
+      </div>
+      <p class="dica" id="resumoVazio">Toque em "Ler resumo" depois de uma partida.</p>
+      <div id="resumoDados" hidden>
+        <div class="destaque">
+          <div>
+            <div class="rot">Andou</div>
+            <div class="grande"><b id="rAndou">—</b><span>s</span></div>
+          </div>
+          <div class="dir"><b id="rLinhas">—</b><span id="rLinhasSub"></span></div>
+        </div>
+        <div class="grade">
+          <div class="bloco"><div class="rot">PWM curva · reta</div><div class="val" id="rPwm">—</div><div class="sub" id="rPwmSub"></div></div>
+          <div class="bloco"><div class="rot">Em reta</div><div class="val" id="rEmReta">—</div><div class="sub">do tempo</div></div>
+          <div class="bloco"><div class="rot">Erro máximo</div><div class="val" id="rErroMax">—</div></div>
+          <div class="bloco"><div class="rot">Sem linha</div><div class="val" id="rSemLinha">—</div></div>
+          <div class="bloco"><div class="rot">Ciclo máximo</div><div class="val" id="rCiclo">—</div><div class="sub" id="rCicloSub"></div></div>
+          <div class="bloco"><div class="rot">Atrasados</div><div class="val" id="rAtrasados">—</div><div class="sub">ciclos</div></div>
+        </div>
+      </div>
+      <div class="botoes">
         <button data-acao="res" class="primario">Ler resumo</button>
         <button data-acao="log">Ler registro</button>
       </div>
     </div>
     <div class="cartao">
       <h2>Últimos 2,4 s</h2>
-      <canvas id="grafico" height="300"></canvas>
+      <svg id="grafico" role="img" aria-label="Gráfico do erro e do PWM das rodas nos últimos 2,4 s"></svg>
       <div class="legenda">
         <span><i class="c-erro"></i>erro</span>
         <span><i class="c-esq"></i>roda esq.</span>
@@ -116,9 +142,7 @@
         <span><i class="c-sem"></i>sem linha</span>
         <span><i class="c-faixa"></i>faixa</span>
       </div>
-      <div class="linha-botoes">
-        <button data-acao="csv" id="btCsv" disabled>Baixar CSV</button>
-      </div>
+      <button data-acao="csv" id="btCsv" class="largo" disabled>Baixar CSV</button>
     </div>
   </section>
 
@@ -126,16 +150,20 @@
   <section id="aba-testes" class="aba">
     <div class="cartao">
       <h2>Testes</h2>
-      <p class="dica">Com o robô parado, em "esperando" ou "pronto". As rodas giram e a EDF liga: segure o robô.</p>
-      <div class="lista-testes">
-        <button data-acao="motores">Rodas<small>esq. frente/ré, dir. frente/ré</small></button>
-        <button data-acao="edf" class="perigo">EDF<small>3 s no nível atual (SW2 ligada)</small></button>
-        <button data-acao="m">Canais do mux<small>8 s: passe a mão na barra</small></button>
-        <button data-acao="ir">Controle IR<small>mostra os quadros recebidos</small></button>
-        <button data-acao="r">Leitura crua<small>16 canais e pino do IR</small></button>
-        <button data-acao="cor">Trocar cor da linha<small>só até desligar</small></button>
+      <div class="atencao">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--alerta)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 2.5 20h19L12 4Z"/><path d="M12 10v4.5M12 17.5v.01"/></svg>
+        <div>Com o robô parado, em "esperando" ou "pronto". As rodas giram e a EDF liga: <b>segure o robô.</b></div>
       </div>
-      <button data-acao="parar" id="btParar" class="perigo grande" hidden>PARAR</button>
+      <div class="lista-testes">
+        <button data-acao="motores"><span class="t">Rodas</span><small>esq. frente/ré, dir. frente/ré</small></button>
+        <button data-acao="edf" class="perigo"><span class="t">EDF</span><small>3 s no nível atual (SW2 ligada)</small></button>
+        <button data-acao="m"><span class="t">Canais do mux</span><small>8 s: passe a mão na barra</small></button>
+        <button data-acao="ir"><span class="t">Controle IR</span><small>mostra os quadros recebidos</small></button>
+        <button data-acao="r"><span class="t">Leitura crua</span><small>16 canais e pino do IR</small></button>
+        <button data-acao="cor"><span class="t">Trocar cor da linha</span><small>só até desligar</small></button>
+      </div>
+      <button data-acao="parar" id="btParar" hidden>PARAR</button>
+      <div class="saida-cab"><span class="rot">Saída</span><span id="saidaNome"></span></div>
       <pre id="saidaTeste" class="saida"></pre>
     </div>
   </section>
@@ -144,17 +172,17 @@
   <section id="aba-terminal" class="aba">
     <div class="cartao">
       <h2>Terminal</h2>
-      <pre id="terminal" class="saida alta"></pre>
-      <form id="formTerminal" class="linha-botoes">
-        <input id="inTerminal" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="comando (? para ajuda)">
+      <div id="terminal" class="terminal"></div>
+      <form id="formTerminal" class="form-terminal">
+        <label class="prompt"><span>›</span><input id="inTerminal" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="comando (? para ajuda)" aria-label="comando"></label>
         <button class="primario">Enviar</button>
       </form>
     </div>
     <div class="cartao">
       <h2>Conexão</h2>
       <div class="param">
-        <div class="param-txt"><b>senha</b><span>A do <code>BLE_SENHA</code> no config.h. Fica guardada neste celular.</span></div>
-        <div class="param-ctl"><input id="inSenha" type="password" autocomplete="off" value="1234"></div>
+        <div class="param-txt"><div class="param-nome">senha</div><div class="param-desc">A do <code>BLE_SENHA</code> no config.h. Fica guardada neste celular.</div></div>
+        <input id="inSenha" class="campo-senha" type="password" autocomplete="off" value="1234" aria-label="senha">
       </div>
       <p class="dica" id="versao"></p>
     </div>
@@ -162,14 +190,14 @@
 </main>
 
 <nav class="abas">
-  <button data-aba="ajustes" class="ativa"><span>⚙</span>Ajustes</button>
-  <button data-aba="sensores"><span>▥</span>Sensores</button>
-  <button data-aba="partida"><span>⏱</span>Partida</button>
-  <button data-aba="testes"><span>⚡</span>Testes</button>
-  <button data-aba="terminal"><span>›_</span>Terminal</button>
+  <button data-aba="ajustes" class="ativa"><span class="pilula"><svg viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></span>Ajustes</button>
+  <button data-aba="sensores"><span class="pilula"><svg viewBox="0 0 24 24"><path d="M5 19v-6M9.67 19V6M14.33 19v-9M19 19v-4"/></svg></span>Sensores</button>
+  <button data-aba="partida"><span class="pilula"><svg viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7"/><path d="M12 13.5V10M10 3h4M18.5 6.5 20 5"/></svg></span>Partida</button>
+  <button data-aba="testes"><span class="pilula"><svg viewBox="0 0 24 24"><path d="M13 3 6 13.5h5.5L10.5 21 18 10.5h-5.5L13 3Z"/></svg></span>Testes</button>
+  <button data-aba="terminal"><span class="pilula"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="3"/><path d="m7.5 9.5 3 2.5-3 2.5M13 14.5h3.5"/></svg></span>Terminal</button>
 </nav>
 
-<div id="toast" class="toast" hidden></div>
+<div id="toast" class="toast" role="status" hidden></div>
 <script src="app.js"></script>
 </body>
 </html>

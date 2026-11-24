@@ -1,9 +1,10 @@
 // Guarda a pagina no celular para abrir sem internet (o Bluetooth nao precisa dela).
 // Troque a VERSAO a cada mudanca nos arquivos: o celular baixa a nova na proxima
 // vez que abrir com internet e passa a usar na seguinte.
-const VERSAO = 'pqx-1';
+const VERSAO = 'pqx-2';
 const ARQUIVOS = [
   './', 'index.html', 'estilo.css', 'app.js', 'manifest.webmanifest',
+  'fontes/archivo.woff2', 'fontes/jetbrains-mono.woff2',
   'icones/icone.svg', 'icones/icone-192.png', 'icones/icone-512.png', 'icones/icone-maskable-512.png',
 ];
 
