@@ -19,6 +19,13 @@ Firmware: [`firmware/teste_barra/`](../firmware/teste_barra/) (o mesmo `barra.h/
 
 - **24/11/2026, no robô** (barra nos braços, `teste_barra`, 4 amostras, t = 2055 µs): os 12 sensores respondem. Cru sobre papel branco ≈ 1640–1690, sobre a fita preta ≈ 230–250; ruído ±10. **A leitura sobe com a reflexão** (branco alto), ao contrário do que o `barra.cpp` supunha: a inversão de cor foi corrigida (linha preta inverte). Nos dois casos os sensores aparecem em blocos de 4 (S0–S3, S4–S7, S8–S11): conferir com o `m` e a largura da fita.
 
+### Barra V1 pelo Gerber (`therickmatos/Seguidor-de-linha`, `hardware/barra_v1/`), lido em 24/11/2026
+- **J2 (1×8, passo 2,0):** 1 = VCC, 2 = GND, 3 = sem ligação, 4 = SIG, 5 = S3, 6 = S2, 7 = S1, 8 = S0. Mesma ordem do U5 da Galiléia3: o cabo é direto.
+- **QRE1113:** coletor no VCC, emissor no SIG do canal com 4k7 para o GND (R0..R11). Por isso a leitura sobe no branco. LEDs dois a dois em série com 47 Ω (R20..R25): ~15–19 mA por LED a 3,3 V, ~110 mA no total.
+- **74HC4067 em TSSOP-24 (passo 0,65 mm):** sensores S0..S11 da esquerda para a direita nos canais **2 a 13**; canais 0, 1, 14 e 15 e o E no GND. O firmware usa 4 a 15 (`MAPA_PADRAO`): conferir com o `m` depois de consertar o S0/S1.
+- **Pontos apertados:** pino 10 (S0) entre o 9 (GND) e o 11 (S1); pino 11 (S1) entre o 10 e o 12 (GND), com 0,19 mm de cobre a cobre. Perto da J2, a trilha do S2 passa a 0,17 mm do pad do S1.
+- **24/11:** primeiro o S0 sem efeito; depois do conserto, o S1 cai a 0,5 V com a barra ligada (3,3 V sem ela): curto na barra, provável ponte de solda nos pinos 10–12 do mux.
+
 ## Primeira energização (placa Galiléia3)
 Fazer nesta ordem, com o multímetro, **sem a SuperMini, a barra e o KY-022 na placa** até o passo 4.
 
