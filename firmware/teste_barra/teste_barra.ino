@@ -334,9 +334,9 @@ void diagnostico() {
 
   Serial.println(F("\n[3] Teste das linhas de selecao (meca com multimetro):"));
   for (uint8_t b = 0; b < 4; b++) {
-    Serial.printf("  S%u/GPIO%u em 3.3V por 10 s...\n", (unsigned)b, (unsigned)barra.pinos().s[b]);
+    Serial.printf("  S%u/GPIO%u em 3.3V por 20 s...\n", (unsigned)b, (unsigned)barra.pinos().s[b]);
     barra.selecionarCanal(1 << b);   // so a linha b em nivel alto
-    delay(10000);                    // tempo para posicionar as pontas do multimetro
+    delay(20000);                    // tempo para medir as 4 pernas do mux com o multimetro
   }
   barra.selecionarCanal(0);
   Serial.println(F("  Fim.\n"));
