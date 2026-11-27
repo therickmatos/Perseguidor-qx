@@ -22,7 +22,7 @@
  *   res          resumo da ultima partida
  *   log          ultimos segundos da ultima partida, em CSV
  *   motores      teste das rodas (esq. frente/re, dir. frente/re)
- *   edf          liga a EDF no nivel atual por 3 s
+ *   edf          liga a EDF no nivel atual por 15 s
  */
 #include <Arduino.h>
 #include <stddef.h>
@@ -349,16 +349,17 @@ void testeMotores() {
   }
 }
 
-// EDF no nivel atual por 3 s (rampa de 0,5 s); qualquer tecla ou botao para
+// EDF no nivel atual por 15 s (rampa de 0,5 s); qualquer tecla ou botao para.
+// 15 s da tempo de apoiar o robo de cabeca para baixo e ver a succao segurar.
 void testeEdf() {
   const uint8_t alvo = ventDoNivel(P, nivelAtual);
-  Con.printf("EDF em %u (de 255) por 3 s em 1 s; SW2 tem de estar ligada. Qualquer tecla para.\n",
+  Con.printf("EDF em %u (de 255) por 15 s em 1 s; SW2 tem de estar ligada. Qualquer tecla para.\n",
                 (unsigned)alvo);
   bipe(3, 60, BIPE_AGUDO);
   delay(1000);
   esvaziarEntrada();
   const uint32_t t0 = millis();
-  while (millis() - t0 < 3000 && !interrompido()) {
+  while (millis() - t0 < 15000 && !interrompido()) {
     uint32_t t = millis() - t0;
     hwVentoinha(t < 500 ? (uint8_t)((uint32_t)alvo * t / 500) : alvo);
     delay(5);
