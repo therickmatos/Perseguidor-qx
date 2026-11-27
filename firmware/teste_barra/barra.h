@@ -25,11 +25,13 @@
 #define NUM_SENSORS   12
 #define NUM_CANAIS    16
 
-// Canal do mux de cada sensor (S0..S11). A barra usa C4..C15 (C0..C3 vazios).
+// Canal do mux de cada sensor (S0..S11). A barra V1 usa C2..C13: no Gerber
+// C0, C1, C14 e C15 vao ao GND, e com S0..S3 consertados C14/C15 leem ~41
+// no branco (27/11). O C4..C15 de antes veio de um 'm' com S0/S1 travados.
 // O mapa e fixo no codigo: o comando 'm' do sketch de teste so confere quais
 // canais respondem e imprime a linha para colar aqui.
 // Se a barra estiver montada espelhada, inverta a ordem.
-#define MAPA_PADRAO  {4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+#define MAPA_PADRAO  {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}
 
 // Leitura de um sensor: troca o canal, espera a acomodacao, descarta a
 // primeira conversao (limpa o S&H) e tira a media de AMOSTRAS conversoes.
