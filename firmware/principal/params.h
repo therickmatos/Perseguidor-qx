@@ -13,7 +13,7 @@
 #include <stdint.h>
 
 struct Parametros {
-  // ---- PD (erro em milesimos de sensor: +-5500, 1000 = 7,8 mm)
+  // ---- PD (erro em milesimos de sensor: +-3500, 1000 = 9,525 mm na QRE-8D)
   float    kp;        // PWM por unidade de erro
   float    kd;        // PWM por (unidade de erro por ms)
   uint8_t  fd;        // filtro da derivada, % da leitura nova (100 = sem filtro)
@@ -61,8 +61,10 @@ struct Parametros {
 };
 
 inline void parametrosPadrao(Parametros &p) {
-  p.kp = 0.06f;       // KP do EVA-RT
-  p.kd = 0.40f;       // KD 0.6 do EVA-RT era por volta do laco (~0,65 ms)
+  // kp, kd e ecurva: os da barra V1 (0,06 / 0,40 / 600, com 1000 = 7,8 mm)
+  // convertidos para o passo da QRE-8D (x 9,525 / 7,8), o mesmo PWM por mm
+  p.kp = 0.0733f;     // KP 0,06 do EVA-RT
+  p.kd = 0.4885f;     // KD 0.6 do EVA-RT era por volta do laco (~0,65 ms)
   p.fd = 50;
 
   p.vel = 40;         // SPEED do EVA-RT
@@ -72,7 +74,7 @@ inline void parametrosPadrao(Parametros &p) {
   p.vpasso = 10;
   p.nivel = 0;
 
-  p.ecurva = 600;     // 4,7 mm
+  p.ecurva = 491;     // 4,7 mm
   p.treta = 60;
   p.rreta = 15;
   p.rcurva = 40;

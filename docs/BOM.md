@@ -22,8 +22,11 @@
 ## Módulos e peças do robô
 | Qtde | Item | Observação |
 |---|---|---|
-| 1 | barra de sensores V1 (12× QRE1113 + 74HC4067) | a mesma do Saturn/Dreamcast; Gerber em `therickmatos/Seguidor-de-linha`, `hardware/barra_v1/` |
-| 1 | cabo 8 vias para a barra | a barra tem passo de 2,0 mm e a placa 2,54 mm (cabo misto) |
+| 1 | sensor de refletância QRE-8D (RoboCore) | 8× QRE1113GR, 75 × 13 mm; J2 "3V3 Bypass" fechado (`eletronica/README.md`) |
+| 1 | módulo CD74HC4067 (mux de 16 canais) | no conector U5; EN no GND; alimentado pelo 3V3 |
+| 8 | resistor 22 kΩ (ou rede SIP 8× 22 kΩ com comum) | pull-up de cada saída da QRE-8D para o 3V3; 47 kΩ se faltar contraste |
+| — | jumpers Dupont | U5 → módulo, módulo → QRE-8D; prender com cola quente |
+| (—) | ~~barra de sensores V1 (12× QRE1113 + 74HC4067)~~ | não foi montada; Gerber em `therickmatos/Seguidor-de-linha`, `hardware/barra_v1/` |
 | 1 | receptor IR KY-022 + controle NEC do kit | módulo de início |
 | 1 | EDF QX-Motor 30 mm | corpo do duto Ø34,0, boca Ø37,5 |
 | 1 | ESC para a EDF | sinal e GND pela placa; potência direto da bateria; BEC sem ligação |

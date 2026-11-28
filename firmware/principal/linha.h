@@ -15,8 +15,8 @@
 #include <stdint.h>
 #include "config.h"
 
-// Erro de -ERRO_MAX (linha sob o sensor 0, a esquerda) a +ERRO_MAX (sensor 11)
-#define ERRO_MAX       ((N_SENSORES - 1) * 500)    // 5500
+// Erro de -ERRO_MAX (linha sob o sensor 0, a esquerda) a +ERRO_MAX (o ultimo)
+#define ERRO_MAX       ((N_SENSORES - 1) * 500)    // 3500 com 8 sensores
 
 class Linha {
 public:
@@ -26,7 +26,7 @@ public:
   // uma faixa larga embaixo da barra e a propria linha, nao a linha de partida.
   void atualizar(const uint8_t norm[N_SENSORES], bool podeCruzar = true);
 
-  int16_t erro() const         { return _erro; }     // -5500..+5500, + = linha a direita
+  int16_t erro() const         { return _erro; }     // -3500..+3500, + = linha a direita
   bool    vista() const        { return _vista; }
   bool    cruzamento() const   { return _cruz; }     // faixa atravessada (linha de partida) embaixo da barra
   bool    medida() const       { return _medida; }   // o erro e uma medida deste ciclo

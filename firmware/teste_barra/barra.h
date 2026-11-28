@@ -1,5 +1,9 @@
 /*
- * barra.h - Barra QRE1113 (12 sensores) + MUX 74HC4067
+ * barra.h - Barra de sensores analogicos + MUX 74HC4067
+ *
+ * Desde 28/11/2026: QRE-8D da RoboCore (8 QRE1113GR, 9,525 mm entre sensores)
+ * num modulo CD74HC4067, com um pull-up em cada saida (ver eletronica/README.md).
+ * Era a barra V1 (12 QRE1113 + 74HC4067 na propria placa).
  *
  * Modulo de leitura reutilizavel (teste de bancada e firmware final).
  * Nao usa Serial e nao tem delay() no caminho da leitura: a unica espera
@@ -22,14 +26,16 @@
 
 #include <Arduino.h>
 
-#define NUM_SENSORS   12
+#define NUM_SENSORS   8
 #define NUM_CANAIS    16
 
-// Canal do mux de cada sensor (S0..S11). A barra usa C4..C15 (C0..C3 vazios).
+// Canal do mux de cada sensor (S0..S7). A QRE-8D vai em C0..C7: saida 1 da
+// QRE-8D (pino 4 do J4) no C0 ... saida 8 (pino 11) no C7. C8..C15 vazios.
 // O mapa e fixo no codigo: o comando 'm' do sketch de teste so confere quais
 // canais respondem e imprime a linha para colar aqui.
 // Se a barra estiver montada espelhada, inverta a ordem.
-#define MAPA_PADRAO  {4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+// (Barra V1, ate 27/11: NUM_SENSORS 12 e {4, 5, ..., 15}.)
+#define MAPA_PADRAO  {0, 1, 2, 3, 4, 5, 6, 7}
 
 // Leitura de um sensor: troca o canal, espera a acomodacao, descarta a
 // primeira conversao (limpa o S&H) e tira a media de AMOSTRAS conversoes.
@@ -85,20 +91,20 @@ struct EstadoNVS {
 class Barra {
 public:
   static constexpr uint16_t LEITURA_MAX = 4095;                     // ADC de 12 bits
-  static constexpr uint16_t POS_MAX     = (NUM_SENSORS - 1) * 1000;  // 11000
-  static constexpr uint16_t POS_CENTRO  = POS_MAX / 2;               // 5500
+  static constexpr uint16_t POS_MAX     = (NUM_SENSORS - 1) * 1000;  // 7000
+  static constexpr uint16_t POS_CENTRO  = POS_MAX / 2;               // 3500
 
   void begin(const PinosBarra& pinos, CorLinha cor);
   void restaurarPadroes();       // sem calibracao, cor do begin()
 
   // ---- Leitura: uma chamada de atualizar() por ciclo ----
-  void     atualizar();          // le os 12 sensores e calcula posicao, erro e perda
+  void     atualizar();          // le os sensores e calcula posicao, erro e perda
   uint16_t posicao() const              { return _posicao; }      // 0..POS_MAX
   int16_t  erro() const                 { return _erro; }         // posicao - POS_CENTRO
   bool     linhaPerdida() const         { return _perdida; }      // posicao vai ao extremo
   uint16_t bruto(uint8_t i) const       { return _raw[i]; }
   uint16_t normalizado(uint8_t i) const { return _norm[i]; }      // 0..1000, 1000 = linha
-  uint32_t tempoLeituraUs() const       { return _tLeituraUs; }   // so a leitura dos 12
+  uint32_t tempoLeituraUs() const       { return _tLeituraUs; }   // so a leitura da barra
 
   void     configurarLeitura(uint8_t amostras, uint16_t acomodacaoUs, bool descarte);
   uint8_t  amostras() const             { return _amostras; }
@@ -113,7 +119,7 @@ public:
 
   // ---- Calibracao por minimo e maximo (quem chama controla o tempo) ----
   void iniciarCalibracao();
-  void amostrarCalibracao();                  // le os 12 e atualiza min/max da media movel
+  void amostrarCalibracao();                  // le todos e atualiza min/max da media movel
   ResultadoCalibracao finalizarCalibracao();  // rejeita se algum sensor nao tiver contraste
   void descartarCalibracao();
   bool     calibrado() const            { return _calibrado; }

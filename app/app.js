@@ -18,7 +18,7 @@ const PEDACO = 20;                                         // bytes por escrita 
 // Mesmos nomes e faixas da TABELA do console.cpp. 'passo' e o do + e -.
 const GRUPOS = [
   ['Controle (PD)', true, [
-    ['kp', 0, 2, 0.005, 'Ganho proporcional. Erro em milésimos de sensor (1000 = 7,8 mm)'],
+    ['kp', 0, 2, 0.005, 'Ganho proporcional. Erro em milésimos de sensor (1000 = 9,5 mm)'],
     ['kd', 0, 20, 0.05, 'Ganho derivativo, por ms'],
     ['fd', 1, 100, 5, 'Filtro da derivada: % da leitura nova por ciclo'],
   ]],
@@ -412,9 +412,14 @@ function listarPerfis(sel) {
 
 // ------------------------------------------------------------------ sensores
 let fluxoAtual = null;
+// Quantos sensores a barra tem: o firmware manda um valor por sensor no 's'
+// (8 na QRE-8D). As barras se refazem se chegar outra quantidade.
+let nSensores = 8;
 function montarBarras() {
   const raiz = $('#barras');
-  for (let i = 0; i < 12; i++) {
+  raiz.innerHTML = '';
+  raiz.style.gridTemplateColumns = `repeat(${nSensores}, 1fr)`;
+  for (let i = 0; i < nSensores; i++) {
     const b = document.createElement('div');
     b.className = 'b';
     b.innerHTML = `<i></i><span>S${i}</span>`;
@@ -427,9 +432,10 @@ function linhaSensores(l) {
     if (fluxoAtual) fluxoAtual.parar();
     return;
   }
-  const m = l.match(/^((?:\d+\t){12})erro (-?\d+)\t([L-])([X-])/);
+  const m = l.match(/^((?:\d+\t)+)erro (-?\d+)\t([L-])([X-])/);
   if (!m) return;
   const v = m[1].trim().split('\t').map(Number);
+  if (v.length !== nSensores) { nSensores = v.length; montarBarras(); }
   const barras = $('#barras').children;
   v.forEach((x, i) => { barras[i].firstChild.style.height = (x / 255 * 100) + '%'; });
   const erro = Number(m[2]);
@@ -437,7 +443,8 @@ function linhaSensores(l) {
   $('#sVista').textContent = m[3] === 'L' ? 'vista' : 'perdida';
   $('#sVista').style.color = m[3] === 'L' ? 'var(--ok)' : 'var(--perigo)';
   $('#sCruz').textContent = m[4] === 'X' ? 'sim' : 'não';
-  $('#erroMarca').style.left = (50 + Math.max(-1, Math.min(1, erro / 5500)) * 50) + '%';
+  const erroMax = (nSensores - 1) * 500;   // ERRO_MAX do linha.h
+  $('#erroMarca').style.left = (50 + Math.max(-1, Math.min(1, erro / erroMax)) * 50) + '%';
 }
 
 async function alternarSensores() {
@@ -510,7 +517,7 @@ function desenharGrafico() {
     return;
   }
   const esq = 34, dir = 8;
-  const pA = { y: 8, h: 120, min: -5500, max: 5500 };     // erro
+  const pA = { y: 8, h: 120, min: -(nSensores - 1) * 500, max: (nSensores - 1) * 500 };   // erro
   const pB = { y: 156, h: 120, min: -255, max: 255 };     // rodas
   const t0 = logDados[0][0], t1 = logDados[logDados.length - 1][0] || 0;
   const x = (t) => esq + (t - t0) / ((t1 - t0) || 1) * (L - esq - dir);

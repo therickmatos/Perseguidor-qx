@@ -9,7 +9,7 @@
   inicio por IR, com a leitura da barra do teste_barra (validado na bancada).
 
       DRIVER:             TB6612FNG (PWM nas entradas, PWMA/PWMB em 3V3)
-      SENSORES:           barra V1 de 12 QRE1113 + 74HC4067 (barra.h/.cpp)
+      SENSORES:           QRE-8D (8 QRE1113) + modulo CD74HC4067 (barra.h/.cpp)
       SUCCAO:             EDF QX-Motor 30 mm por ESC (GPIO8, chave SW2)
       MODULO DE INICIO:   receptor IR KY-022 no GPIO6: controle NEC do kit
                           (o que vale no TRIF) e padrao startmodule.com (RC5)

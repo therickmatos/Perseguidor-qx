@@ -21,7 +21,7 @@ extern Barra barra;
 
 void hwIniciar();
 
-// ---- barra: le os 12 sensores e devolve 0..255 (255 = linha) na ordem do
+// ---- barra: le os N_SENSORES e devolve 0..255 (255 = linha) na ordem do
 // robo (0 = esquerda), ja com a calibracao e a cor da linha do barra.cpp
 void hwLerBarra(uint8_t norm[N_SENSORES]);
 

@@ -27,9 +27,10 @@
  *    repositorio do seguidor), mais dificeis: cruzamentos de verdade e curvas
  *    de R100. Aqui sem as marcas laterais, que o perseguidor nao le.
  *
- * Geometria: barra em arco de R 180 mm, 12 sensores a cada 7,8 mm (Gerber da
- * V1), 107,1 mm a frente do eixo e 110 mm entre as rodas: os numeros do
- * Dreamcast. No Perseguidor-qx a distancia depende do furo escolhido no braco
+ * Geometria: QRE-8D da RoboCore, barra reta com N_SENSORES (8) a cada
+ * 9,525 mm (desde 28/11/2026; ate entao era a barra V1, em arco de R 180 mm
+ * com 12 sensores a cada 7,8 mm). Barra a 107,1 mm a frente do eixo e 110 mm
+ * entre as rodas: os numeros do Dreamcast. No Perseguidor-qx a distancia depende do furo escolhido no braco
  * (mecanica/); trocar L_BARRA e BITOLA quando o robo estiver montado.
  * Linha de 19 mm.
  */
@@ -161,7 +162,8 @@ static double branco(const Pista &p, double px, double py, int eixo, int &j) {
 
 // ------------------------------------------------------------------ robo
 
-static const double L_BARRA = 107.1, R_ARCO = 180.0, PASSO_ANG = 2.4826 * PI / 180.0;
+static const double L_BARRA = 107.1;
+static const double PASSO_BARRA = 9.525;   // QRE-8D: sensores em linha reta
 static const double BITOLA = 110.0;          // entre as rodas (mm)
 static double MM_S_POR_PWM = 45.0;           // PWM 40 -> 1,8 m/s
 static double TAU_MOTOR = 0.120;             // s
@@ -206,9 +208,8 @@ static void ler(const Pista &p, Robo &r, uint8_t norm[N_SENSORES]) {
   double c = std::cos(r.th), s = std::sin(r.th);
   r.eixo = maisProximo(p, r.x, r.y, r.eixo - 200, r.eixo + 200);
   for (int i = 0; i < N_SENSORES; i++) {
-    double a = (i - (N_SENSORES - 1) / 2.0) * PASSO_ANG;   // sensor 0 = esquerda
-    double direita = R_ARCO * std::sin(a);
-    double frente = L_BARRA - R_ARCO * (1 - std::cos(a));
+    double direita = (i - (N_SENSORES - 1) / 2.0) * PASSO_BARRA;   // sensor 0 = esquerda
+    double frente = L_BARRA;
     double px = r.x + frente * c + direita * s;
     double py = r.y + frente * s - direita * c;
     int j;
@@ -323,6 +324,16 @@ static Resultado ensaiar(const Pista &p, const Parametros &par, uint8_t nivel,
   return res;
 }
 
+// A mesma pista com as linhas de partida invisiveis: o desvio na janela em
+// volta delas passa a ser so o da reta. Serve de referencia para ver se a
+// linha de partida desvia o robo: com a QRE-8D (9,525 mm) a linha de 19 mm
+// cobre dois sensores inteiros e o robo balanca uns 3 mm na reta mesmo sem ela.
+static Pista semFaixas(Pista p) {
+  for (Faixa &f : p.faixas) f.meia = -100;
+  return p;
+}
+#define MARGEM_FAIXA_MM  2.0   // quanto a linha de partida pode somar ao desvio da reta
+
 static int falhas = 0;
 static void conferir(bool ok, const char *o_que) {
   if (!ok) { falhas++; std::printf("    FALHOU: %s\n", o_que); }
@@ -385,7 +396,12 @@ int main(int argc, char **argv) {
   mostrar("1 padrao, nivel 0", x);
   conferirParada(x);
   conferir(x.desvioMax < 30, "barra longe da linha");
-  conferir(x.desvioFaixa < 3, "a linha de partida desviou o robo");
+  {
+    const Resultado ref = ensaiar(semFaixas(pista), par, 0, 150, 0, 0, sParar);
+    std::printf("    desvio perto da linha de partida: %.1f mm (sem ela: %.1f mm)\n",
+                x.desvioFaixa, ref.desvioFaixa);
+    conferir(x.desvioFaixa < ref.desvioFaixa + MARGEM_FAIXA_MM, "a linha de partida desviou o robo");
+  }
   const double tPadrao = x.r.totalMs;
   const double desvioReto = x.desvioFaixa;
 
@@ -493,7 +509,10 @@ int main(int argc, char **argv) {
     mostrar(nome, x);
     conferirParada(x);
     conferir(x.desvioMax < 30, "barra longe da linha");
-    conferir(x.desvioFaixa < 3, "a linha de partida desviou o robo");
+    const Resultado ref = ensaiar(semFaixas(circ.pista), par, 0, 450 + dp - L_BARRA, 0, 0, sPar);
+    std::printf("    desvio perto da linha de partida: %.1f mm (sem ela: %.1f mm)\n",
+                x.desvioFaixa, ref.desvioFaixa);
+    conferir(x.desvioFaixa < ref.desvioFaixa + MARGEM_FAIXA_MM, "a linha de partida desviou o robo");
   }
   // A outra posicao de largada (do adversario) e a mesma, girada: confere so uma vez
   x = ensaiar(circ.pista, par, 0, 450 + meiaVolta - L_BARRA, 0, 0, 450 + meiaVolta + (VOLTAS - 1) * circ.volta);

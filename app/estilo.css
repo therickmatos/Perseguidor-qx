@@ -129,7 +129,7 @@ details.grupo .param:first-of-type { margin-top: 8px; }
 .param.ok input { border-color: var(--ok); }
 .param.falhou input { border-color: var(--perigo); }
 
-.barras { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; height: 160px; align-items: end; margin-top: 10px; }
+.barras { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; height: 160px; align-items: end; margin-top: 10px; }
 .barras .b { position: relative; height: 100%; background: var(--campo); border-radius: 5px; overflow: hidden; }
 .barras .b i { position: absolute; left: 0; right: 0; bottom: 0; background: var(--barra); height: 0; transition: height .1s; }
 .barras .b span { position: absolute; left: 0; right: 0; top: 2px; text-align: center; font-size: 10px; color: var(--fraco); }

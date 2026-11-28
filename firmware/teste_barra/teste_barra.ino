@@ -1,5 +1,7 @@
 /*
- * Teste de bancada: barra QRE1113 (12 sensores) + MUX 74HC4067
+ * Teste de bancada: barra de sensores analogicos + MUX 74HC4067
+ * (desde 28/11/2026: QRE-8D com pull-ups num modulo CD74HC4067, 8 sensores;
+ * antes, a barra V1 de 12 QRE1113)
  * Placa: ESP32-C3 Super Mini (Arduino-ESP32 core 3.x), na placa Galileia3
  *
  * A leitura da barra fica em barra.h/.cpp (vai para o firmware final);
@@ -52,7 +54,7 @@
 #define MV_FAIXA_UTIL          2500    // faixa calibrada do ADC do C3 em 11 dB
 
 // Varredura de tempo ('t')
-#define VARR_CICLOS            200     // leituras dos 12 sensores por combinacao
+#define VARR_CICLOS            200     // leituras da barra por combinacao
 #define VARR_TOL_RUIDO         5.0f    // sigma maximo no pior sensor (escala 0..1000)
 #define VARR_TOL_DESVIO       10.0f    // desvio maximo da media vs referencia (escala 0..1000)
 #define VARR_REF_AMOSTRAS       16
@@ -214,7 +216,7 @@ void mapear() {
 
   if (r.confere) {
     Serial.println(F(">> OK: os canais ativos sao exatamente os do MAPA_PADRAO."));
-    Serial.println(F("   Ordem: tampe so uma ponta da barra e veja se quem muda e o S0 ou o S11;"));
+    Serial.println(F("   Ordem: tampe so uma ponta da barra e veja se quem muda e o primeiro ou o ultimo;"));
     Serial.println(F("   se estiver ao contrario do que voce quer, inverta o MAPA_PADRAO em barra.h."));
   } else {
     for (uint8_t i = 0; i < NUM_SENSORS; i++) {
@@ -283,6 +285,9 @@ void calibrar() {
     Serial.printf(">> %u sensor(es) saturando (>= %u): tensao acima da faixa do ADC "
                   "(~%u mV em 11 dB). Veja os mV no 'd'.\n",
                   (unsigned)r.saturados, (unsigned)LIMIAR_SATURACAO, (unsigned)MV_FAIXA_UTIL);
+    Serial.println(F("   QRE-8D com pull-up no 3V3: o preto (max) chega perto de 3,3 V e satura,\n"
+                     "   o que nao atrapalha a linha branca. O que importa e o min (branco) bem\n"
+                     "   abaixo: se o delta ficar pequeno, aumente os pull-ups (ver eletronica/README.md)."));
   }
 
   if (r.aceita) {

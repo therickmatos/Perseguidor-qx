@@ -6,7 +6,7 @@ Robô perseguidor de linha com sucção por EDF (QX-Motor 30 mm), placa **Galil�
 
 - **ESP32-C3 SuperMini**, firmware próprio (`firmware/principal/`), console pela USB e pelo Bluetooth, com app para o celular (`app/`)
 - **TB6612FNG** para os dois motores; rodas de Ø22 mm
-- **Barra de sensores V1**: 12× QRE1113 + 74HC4067, presa em braços impressos à frente da placa
+- **Barra de sensores QRE-8D** (RoboCore, 8× QRE1113) lida por um módulo **CD74HC4067** no conector da barra, presa à frente da placa (desde 28/11/2026; a barra V1 de 12 sensores não foi montada)
 - **EDF QX-Motor 30 mm** por ESC, presa num anel impresso com a entrada a ~2 mm do chão; chave SW2 no sinal do ESC
 - **Módulo de início** por IR: KY-022 (controle NEC do kit e padrão RC5 do startmodule.com)
 - **Mini360** para o 3,3 V; bateria no **XT60**; chave SW1 na lógica

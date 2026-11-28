@@ -16,7 +16,7 @@ Placa base do Perseguidor-qx, desenhada no EasyEDA Pro (projeto `Galiléia3`). F
 | U2 | módulo TB6612FNG | driver dos dois motores |
 | U3 | Mini360 (MP2307) | 3,3 V a partir da bateria, depois da SW1 |
 | U4 | XT60PB-M | bateria |
-| U5 | barra de pinos 1×8 | cabo da barra de sensores V1 (12× QRE1113 + 74HC4067) |
+| U5 | barra de pinos 1×8 | cabo do módulo CD74HC4067 com a QRE-8D (ver "Barra de sensores"); era a barra V1 |
 | U6 | barra de pinos 1×3 | receptor IR KY-022 (módulo de início) |
 | U7 | barra de pinos 1×3 | sinal do ESC da EDF |
 | U8 | botão 6×6 (TSWDIP) | botão 1 do firmware |
@@ -68,6 +68,30 @@ Saídas: AO1/AO2 = `M_ESQ_A`/`M_ESQ_B` (motor esquerdo), BO1/BO2 = `M_DIR_A`/`M_
 | sem ligação | ESP 5V (`NC_5V`), BEC do ESC (`NC_ESC_BEC`), SW1 pino 3, SW2 pino 3, pinos 2 e 3 do botão, barra pino 3 (`P6`), ESP GPIO9, TB6612 pino 8 (GND) |
 
 Conector da barra (U5): 1 = 3V3, 2 = GND, 3 = `P6` (sem ligação), 4 = SIG, 5 = S3, 6 = S2, 7 = S1, 8 = S0.
+
+## Barra de sensores: QRE-8D + módulo CD74HC4067 (desde 28/11/2026)
+A barra V1 (12× QRE1113 + 74HC4067 na própria placa) não pôde ser montada. No lugar dela vai a **QRE-8D da RoboCore** (8× QRE1113GR a 9,525 mm, 75 × 13 mm; esquemático `QRE-8D_v1.0_schematic.pdf` da RoboCore, desenho original da Pololu) lida por um **módulo CD74HC4067** ligado no mesmo conector U5. A placa Galiléia3 não muda.
+
+A QRE-8D é de "saída digital": cada saída é um capacitor de 10 nF (para o VCC) que o fototransistor descarrega, com 220 Ω até o pino, e cada uma precisaria de um GPIO só para ela. A SuperMini não tem pinos para isso (8 sensores + 4 do TB6612 + ESC + IR = 14 de 13). Com um **pull-up em cada saída** ela vira analógica (como uma QTR-8A): a tensão cai quando o sensor vê o branco. O mux passa as 8 para o ADC, como fazia a barra V1, e o `barra.cpp` lê igual.
+
+| U5 (placa) | Módulo CD74HC4067 | QRE-8D (J4, 11 pinos) |
+|---|---|---|
+| 1 — 3V3 | VCC | 2 — VCC |
+| 2 — GND | GND e **EN** (habilita o mux) | 1 — GND |
+| 3 — sem ligação | — | 3 — LEDON: **deixar solto** (R15 de 47 k liga os LEDs) |
+| 4 — SIG (GPIO4) | SIG | — |
+| 5 — S3 (GPIO3) | S3 | — |
+| 6 — S2 (GPIO2) | S2 | — |
+| 7 — S1 (GPIO1) | S1 | — |
+| 8 — S0 (GPIO0) | S0 | — |
+| — | C0 … C7 | 4 … 11 — saídas 1 … 8 (saída 1 no C0, saída 8 no C7) |
+
+- **Pull-ups:** um resistor de cada saída (pinos 4 a 11 do J4, ou C0..C7 do módulo) para o VCC. Começar com **22 kΩ** (filtro de 0,22 ms com o capacitor de 10 nF). Na bancada, o branco a 3 mm tem de ficar bem abaixo do preto: se o delta da calibração (`c`) ficar pequeno, subir para 47 kΩ (0,47 ms). Uma rede SIP de 8 resistores com comum serve.
+- **J2 "3V3 Bypass" fechado** (ponte de solda ou jumper): com VCC = 3,3 V, ele tira os 23,5 Ω (R13 ∥ R14) do caminho dos LEDs e a corrente de cada par sobe de ~6 para ~12 mA (estimativa). **Nunca fechar com VCC de 5 V.**
+- O módulo e a QRE-8D no **3V3** (pino 1 do U5), nunca em 5 V: o SIG não pode passar de 3,3 V.
+- **Preto saturado é normal:** sem reflexo, a saída fica perto de 3,3 V, acima da faixa do ADC em 11 dB (~2,5 V). O `teste_barra` mostra `[SATURADO]` no preto; o que importa é o branco bem abaixo.
+- Não separar a placa no "PCB Break Point" (as saídas 7 e 8 perdem o controle dos LEDs; o J1 é para esse caso).
+- Mapa no firmware: `MAPA_PADRAO {0..7}` e `NUM_SENSORS 8` (`barra.h`), `N_SENSORES 8` (`config.h`). Se a saída 1 ficar à direita do robô, `BARRA_ESPELHADA 1`.
 
 ## Chaves e cuidados
 - **SW1** liga só a lógica (Mini360 → 3V3). O VM do TB6612 e o C3 ficam no VBAT, antes da chave: com a bateria ligada eles estão sempre energizados. Com a SW1 desligada o 3V3 cai, as entradas do TB6612 vão a 0 (pull-down interno) e os motores param. Para guardar o robô, tirar a bateria.

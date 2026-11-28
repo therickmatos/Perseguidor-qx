@@ -85,13 +85,13 @@ O mesmo console da USB, pelo BLE do ESP32-C3 (não é Bluetooth clássico: não 
 
 | Parâmetro | Padrão | O que é |
 |---|---|---|
-| `kp`, `kd` | 0,06 / 0,40 | PD. Erro em milésimos de sensor (1000 = 7,8 mm); `kd` por ms |
+| `kp`, `kd` | 0,0733 / 0,4885 | PD. Erro em milésimos de sensor (1000 = 9,525 mm na QRE-8D); `kd` por ms. São os 0,06 / 0,40 da barra V1 (1000 = 7,8 mm) no mesmo PWM por mm |
 | `fd` | 50 | filtro da derivada (% da leitura nova por ciclo) |
 | `vel` | 40 | PWM nas curvas fechadas, nível 0 |
 | `reta` | 10 | PWM a mais nas retas (0 = velocidade única) |
 | `passo`, `nivel` | 5 / 0 | aumento por nível, nível ao ligar |
 | `vent`, `vpasso` | 100 / 10 | EDF no nível 0 (0..255 = 1000..2000 µs) e aumento por nível. Chute baixo: subir na pista |
-| `ecurva` | 600 | erro que indica entrada de curva: volta para `vel` na hora |
+| `ecurva` | 491 | erro que indica entrada de curva (4,7 mm): volta para `vel` na hora |
 | `treta` | 60 | ms com o erro quieto para poder passar de `vel` |
 | `rreta`, `rcurva` | 15 / 40 | curvatura (% do PWM) até a qual anda em `vel + reta` / a partir da qual anda em `vel` |
 | `acel` | 300 | PWM por segundo ao acelerar (também é a rampa da largada) |
@@ -140,8 +140,10 @@ g++ -O2 -std=c++11 -I../principal teste_ir.cpp ../principal/ir.cpp -o teste_ir &
 
 Os dois terminam com "tudo certo" ou listam o que falhou. Depois de mexer em `linha.cpp`, `corrida.cpp` ou `ir.cpp`, rodar os dois.
 
-- **`sim.cpp`**: o simulador do Dreamcast, com a leitura passando pela mesma normalização do `barra.cpp` (12 bits) e pela conversão do `hw.cpp`. Pista de ensaio, circuito de perseguidor inventado dentro do regulamento e as pistas TRIF 2025/2024, com três modelos de motor. A geometria (barra a 107,1 mm do eixo, 110 mm entre as rodas) ainda é a do Dreamcast: trocar `L_BARRA` e `BITOLA` quando o robô estiver montado. O modelo dos motores é inventado: serve para conferir a lógica, **não** para escolher ganhos.
-- Com `PERIODO_US` = 2000: tudo certo. Com 1000 (`-DPERIODO_US=1000`) falha um caso no limite: largando com a barra exatamente sobre a linha de partida, a barra desvia 3,6 mm (limite do teste: 3 mm). Com 3000 o robô perde a linha no nível 12: não usar mais de 2000.
+- **`sim.cpp`**: o simulador do Dreamcast, com a leitura passando pela mesma normalização do `barra.cpp` (12 bits) e pela conversão do `hw.cpp`. Pista de ensaio, circuito de perseguidor inventado dentro do regulamento e as pistas TRIF 2025/2024, com três modelos de motor. A barra é a QRE-8D (8 sensores em linha reta, a 9,525 mm; até 27/11 era a V1, em arco, com 12 a 7,8 mm). O resto da geometria (barra a 107,1 mm do eixo, 110 mm entre as rodas) ainda é a do Dreamcast: trocar `L_BARRA` e `BITOLA` quando o robô estiver montado. O modelo dos motores é inventado: serve para conferir a lógica, **não** para escolher ganhos.
+- Com `PERIODO_US` = 2000 ou 1000: tudo certo. Com 3000 o robô perde a linha no nível 12: não usar mais de 2000.
+- Com a QRE-8D a linha de 19 mm cobre dois sensores inteiros e o robô balança uns 3,5 mm na reta (zona morta). Por isso o teste da linha de partida compara o desvio com e sem ela na mesma reta (até 2 mm a mais), e não com 3 mm fixos.
+- O nível 12 (PWM 100/110) com curvas de R100 fica no limite com a QRE-8D: mudar `kp` ou `kd` em ±3 % já faz esse caso perder a linha ou contar errado as linhas de partida. Os níveis 0 a 8 passam. A barra V1, mais larga (86 mm entre os sensores das pontas, contra 67 mm), passava com folga nos mesmos ±3 %. Na pista, subir de nível aos poucos.
 - **`teste_ir.cpp`**: o do Dreamcast, sem mudança.
 
 ## Pendências

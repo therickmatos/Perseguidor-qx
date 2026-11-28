@@ -2,7 +2,20 @@
 
 Registro do que foi medido no robô. Preencher as lacunas (`___`) e datar.
 
-## Barra de sensores (bancada)
+## QRE-8D + CD74HC4067 (bancada, desde 28/11/2026)
+Firmware: [`firmware/teste_barra/`](../firmware/teste_barra/) (já com 8 sensores em C0..C7). Ligação em [`eletronica/README.md`](../eletronica/README.md#barra-de-sensores-qre-8d--módulo-cd74hc4067-desde-28112026).
+
+| Item | Resultado |
+|---|---|
+| Pull-up usado | ___ kΩ |
+| J2 (3V3 Bypass) fechado? | ___ |
+| `m`: canais ativos | ___ (esperado: C0..C7) |
+| `d` com a barra a 3 mm, sensor no branco / no preto | ___ mV / ___ mV (preto saturado é normal) |
+| `c`: menor delta | ___ (S__) — tem de passar de 150 |
+| `t`: recomendado | amostras ___, acomodação ___ µs, descarte ___; t_med ___ µs |
+| Firmware principal, `?` | leitura ___ µs (< 1400 µs) |
+
+## Barra de sensores V1 (bancada; não montada no robô)
 Firmware: [`firmware/teste_barra/`](../firmware/teste_barra/) (o mesmo `barra.h/.cpp` vai no firmware principal).
 
 - **Validada na bancada** com ESP32-C3 em protoboard (pinos S0..S3 = GPIO5, 6, 7, 10; SIG = GPIO3). Os resultados não estavam nos arquivos recebidos; colar aqui a saída dos comandos:
@@ -29,7 +42,7 @@ Fazer nesta ordem, com o multímetro, **sem a SuperMini, a barra e o KY-022 na p
 | 5 | SW1 ligada: 3V3 com a carga | 3,2–3,4 V | ___ V |
 | 6 | Corrente da bateria parado (SW2 desligada) | ___ | ___ mA |
 | 7 | SW1 desligada, USB no PC, gravar o `teste_barra` (SW2 desligada) | grava sem erro | ___ |
-| 8 | `m` e `c` na pista | 12 canais, calibração aceita | ___ |
+| 8 | `m` e `c` na pista | 8 canais (C0..C7), calibração aceita | ___ |
 | 9 | Gravar o `principal`, console `?` | tempo de leitura < 70 % do ciclo | ___ µs |
 | 10 | Console `motores` (rodas no ar) | esq. frente, esq. ré, dir. frente, dir. ré | ___ |
 | 11 | SW2 ligada: o ESC arma (bipes do ESC) | arma sozinho | ___ |

@@ -162,7 +162,7 @@ void consoleArena() {
   }
 }
 
-// Tempo da leitura dos 12 sensores, que tem de caber no ciclo de controle
+// Tempo da leitura da barra, que tem de caber no ciclo de controle
 void consoleTempoLeitura() {
   uint8_t norm[N_SENSORES];
   uint32_t soma = 0, maior = 0;
@@ -256,7 +256,7 @@ static void esvaziarEntrada() {
   delay(30);
 }
 
-// 12 sensores (0..255, 255 = linha), erro, L = linha vista, X = faixa atravessada
+// Os N_SENSORES (0..255, 255 = linha), erro, L = linha vista, X = faixa atravessada
 static void fluxoNormalizado() {
   if (!barra.calibrado()) {
     Con.println(F("calibre antes"));

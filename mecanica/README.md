@@ -58,6 +58,7 @@ Tudo em PLA.
 **Braços da barra:**
 1. Pé de cada braço no furo da frente da placa, com M2,5 × 8. O furo do pé é oblongo (±0,6 mm): empurrar o braço para trás até o batente encostar na borda da frente da placa e apertar. O batente impede o braço de girar.
 2. Barra nos dois braços, no mesmo furo dos dois lados, com M2. Os 12 sensores ficam à frente dos furos da barra.
+   **QRE-8D (desde 28/11/2026):** ela tem 75 mm e os furos dos braços ficam a 89,25 mm um do outro: precisa de uma travessa entre os braços (a fazer, com as medidas da furação da QRE-8D). Os sensores a ~3 mm do chão; manter a barra no furo planejado para a V1 (o simulador usa 107 mm do eixo; mais perto piorou).
 3. Ligar o cabo da barra no conector 1×8 da placa (ordem em `eletronica/README.md`).
 
 Falta escrever: motores e rodas, bateria e a passagem dos cabos.

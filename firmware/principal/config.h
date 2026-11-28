@@ -24,6 +24,8 @@
 // ------------------------------------------------------------------ pinos
 // Placa Galileia3 com ESP32-C3 SuperMini (conferido na netlist do .epro):
 //   GPIO0..3  S0..S3 do 74HC4067 (GPIO2 tem pull-up de 10k, R3: strapping)
+//             (desde 28/11 o mux e um modulo CD74HC4067 ligado no conector
+//             da barra, U5, com a QRE-8D nos canais C0..C7)
 //   GPIO4     SIG, saida comum do mux (ADC1_CH4)
 //   GPIO10    AIN1  \  TB6612, motor A = esquerdo (AO1/AO2 = M_ESQ_A/B)
 //   GPIO20    AIN2  /  (PWMA e PWMB ligados no 3V3: o PWM vai nas entradas)
@@ -53,7 +55,9 @@
 // A leitura e a calibracao sao do modulo barra.h/.cpp (copia identica do
 // firmware/teste_barra, validado na bancada). O mapa do mux (MAPA_PADRAO)
 // fica la. Aqui so o que o firmware do robo usa.
-#define N_SENSORES    12
+// QRE-8D da RoboCore: 8 sensores em linha reta, 9,525 mm entre eles
+// (a barra V1 tinha 12, a 7,8 mm, em arco)
+#define N_SENSORES    8
 
 // Leitura de cada sensor: amostras, acomodacao do mux (us) e descarte da
 // primeira conversao. Comecam nos valores do barra.h; troque pelos que a
@@ -70,7 +74,7 @@
 #define NORM_RUIDO           13   // abaixo disso o sensor nao entra na media
 #define NORM_LINHA           77   // algum sensor acima disso = linha vista
 
-// A linha de 19 mm cobre 2 a 3 sensores (passo de 7,8 mm), 4 se o robo
+// A linha de 19 mm cobre 2 sensores (passo de 9,525 mm), 3 se o robo
 // estiver um pouco torto. LARGURA_FAIXA ou mais sensores vizinhos ativos
 // e uma faixa larga; LARGURA_CRUZAMENTO ou mais e uma faixa atravessada.
 // No perseguidor a unica faixa atravessada e a linha de partida (regra 4.8:
@@ -82,19 +86,23 @@
 // e tratada como atravessada (erro mantido) se o robo nao estiver virando:
 // comando medio de direcao abaixo de CRUZ_COMANDO_MAX % da velocidade de
 // curva. Com LARGURA_TOTAL sensores e faixa atravessada em qualquer situacao.
+// Com a QRE-8D (8 sensores, 9,525 mm): faixa larga a partir de 5 vizinhos
+// (48 mm), atravessada com 7, e com os 8 em qualquer situacao. Conferido no
+// simulador (firmware/testes). Na barra V1 (12 sensores) eram 5, 8 e 10.
 #define LARGURA_FAIXA         5
-#define LARGURA_CRUZAMENTO    8
-#define LARGURA_TOTAL        10
+#define LARGURA_CRUZAMENTO    7
+#define LARGURA_TOTAL         8
 #define CRUZ_COMANDO_MAX     30
 #define FAIXA_MAX_MS         80   // erro mantido no maximo por este tempo
 
-// Num trecho reto a linha nao anda mais que 3 mm por ms (400 em 1 ms). Um
+// Num trecho reto a linha nao anda mais que ~4 mm por ms (400 em 1 ms; 1000
+// = 9,525 mm na QRE-8D). Um
 // salto maior so e aceito se durar SALTO_CICLOS: da tempo de a faixa
 // atravessada, que entra por um lado da barra, ser reconhecida.
 #define SALTO_MAX           (400L * PERIODO_US / 1000L)
 #define SALTO_CICLOS          3
 
-// Perdeu a linha com o erro alem disso (1000 = um sensor): ela saiu pela
+// Perdeu a linha com o erro alem disso (1000 = um sensor; o extremo e 3500): ela saiu pela
 // lateral e o erro vai para o extremo. Senao (falha no meio) o erro e mantido.
 #define LIMIAR_LATERAL     2000
 
@@ -138,7 +146,7 @@
 #define ESC_MAX_US         2000   // EDF no maximo
 
 // ------------------------------------------------------------------ ciclo
-// Periodo fixo do controle (multiplo de 1000 us). A leitura dos 12 sensores
+// Periodo fixo do controle (multiplo de 1000 us). A leitura dos sensores
 // tem de caber com folga: o console mostra o tempo medido ('?') e, depois da
 // partida, o maior ciclo e os atrasados ('res'). O Dreamcast (ATmega) roda a
 // 1000 us; aqui comeca em 2000 por causa do ADC do ESP32-C3 com 4 amostras.
