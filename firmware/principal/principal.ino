@@ -250,12 +250,37 @@ static uint16_t telaPronto() {
   Con.println(F("pronto: controle = partida | botao 1 = largar em 1 s (teste) | botao 2 = sobe o nivel"));
   bipe(1, 150, BIPE_AGUDO);
 
+#if LARGADA_AUTO
+  static bool armada = true;          // no boot ja vale; depois de correr, so apos levantar
+  uint32_t desdeVista = 0, desdeSumiu = millis();
+  bool viaAntes = false;
+  Con.printf("largada automatica: linha vista por %u ms = sai%s\n", (unsigned)LARGADA_AUTO_MS,
+             armada ? "" : " (levante o robo antes)");
+#endif
   for (;;) {
     consoleProcessar();
     if (tratarIR() == IR_PARTIDA) return 0;
 
     hwLerBarra(norm);
     corrida.observar(norm);
+#if LARGADA_AUTO
+    {
+      const bool ve = corrida.linha().vista();
+      const uint32_t agora = millis();
+      if (ve && !viaAntes) desdeVista = agora;
+      if (!ve && viaAntes) desdeSumiu = agora;
+      viaAntes = ve;
+      if (!armada && !ve && agora - desdeSumiu >= 500) {
+        armada = true;
+        Con.println(F("largada automatica armada"));
+      }
+      if (armada && ve && agora - desdeVista >= LARGADA_AUTO_MS) {
+        armada = false;
+        bipe(2, 60, BIPE_AGUDO);
+        return 300;
+      }
+    }
+#endif
 
     uint8_t t = lerToque();
     if (t == 1) return LARGADA_BOTAO_MS;
@@ -332,6 +357,11 @@ static void telaFim() {
 
   // Parado pelo juiz: volta sozinho para "pronto", para o proximo round
   if (motivo == FIM_PARADA) return;
+#if LARGADA_AUTO
+  // sem botao 1: volta direto para "pronto" (a largada so arma depois de levantar)
+  bipe(motivo == FIM_PERDEU ? 2 : 3, 300, BIPE_GRAVE);
+  return;
+#endif
 
   // 2 bipes longos = perdeu a linha; 3 = botao ou tempo
   bipe(motivo == FIM_PERDEU ? 2 : 3, 300, BIPE_GRAVE);

@@ -72,6 +72,13 @@
 // 0 = fluxo normal (botao 1 calibra, botao 2 usa a calibracao gravada).
 #define SEM_CALIBRACAO       1
 
+// Largada automatica (teste, enquanto o botao 1 nao funciona): em "pronto",
+// com a barra vendo a linha sem parar por LARGADA_AUTO_MS, o robo larga
+// (2 bipes curtos de aviso antes). Depois de uma partida, so arma de novo
+// quando a linha some por 0,5 s (robo levantado). 0 = desligada.
+#define LARGADA_AUTO         1
+#define LARGADA_AUTO_MS   3000
+
 // 1 = a barra esta montada ao contrario (o S0 do mapa ficou na direita)
 #define BARRA_ESPELHADA      0
 
