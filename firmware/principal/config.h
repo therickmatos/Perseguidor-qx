@@ -66,6 +66,12 @@
 #define LEITURA_ACOMODACAO_US  20
 #define LEITURA_DESCARTE        1
 
+// 1 = sem calibracao (teste rapido na pista): liga direto em "pronto" e usa
+// a leitura crua em escala cheia (preto ~4095, branco 330..2000 na QRE-8D com
+// J2 fechado e pull-ups de 10k). Botao 1 larga em 1 s; o controle larga na hora.
+// 0 = fluxo normal (botao 1 calibra, botao 2 usa a calibracao gravada).
+#define SEM_CALIBRACAO       1
+
 // 1 = a barra esta montada ao contrario (o S0 do mapa ficou na direita)
 #define BARRA_ESPELHADA      0
 

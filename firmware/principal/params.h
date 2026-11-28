@@ -75,7 +75,7 @@ inline void parametrosPadrao(Parametros &p) {
   p.vel = 60;
   p.reta = 0;
   p.passo = 10;
-  p.vent = 50;        // ~1200 us: EDF girando devagar (se nao girar, 70)
+  p.vent = 100;       // ~1390 us: girou com a bateria nova (28/11); 50 nao foi testado
   p.vpasso = 0;       // o nivel so muda as rodas
   p.nivel = 0;
 

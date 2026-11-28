@@ -379,6 +379,12 @@ void setup() {
     Con.println(F("cor da linha gravada pelo teste_barra ignorada: vale a do config.h"));
   }
   barra.setCorLinha(COR_LINHA_PADRAO);
+#if SEM_CALIBRACAO
+  // teste rapido: ignora qualquer calibracao e vai direto para "pronto"
+  barra.descartarCalibracao();
+  temCal = true;
+  Con.println(F("SEM_CALIBRACAO: leitura crua, direto em \"pronto\""));
+#endif
   consoleEstado();
 
   // leitura lenta demais para o ciclo: 3 bipes graves (o console explica)
