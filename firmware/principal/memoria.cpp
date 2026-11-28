@@ -12,7 +12,7 @@ static const char *const CHAVE_PAR = "par";
 static const char *const CHAVE_ARENA = "arena";
 
 // Mudar a struct Parametros -> somar 1 aqui (a gravada antiga e ignorada)
-#define MAGIA_PARAMETROS 0x5101
+#define MAGIA_PARAMETROS 0x5102   // 0x5102: padroes da QRE-8D (28/11/2026)
 
 struct BlocoParametros {
   uint16_t   magia;

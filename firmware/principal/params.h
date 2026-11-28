@@ -67,11 +67,16 @@ inline void parametrosPadrao(Parametros &p) {
   p.kd = 0.4885f;     // KD 0.6 do EVA-RT era por volta do laco (~0,65 ms)
   p.fd = 50;
 
-  p.vel = 40;         // SPEED do EVA-RT
-  p.reta = 10;
-  p.passo = 5;
-  p.vent = 100;       // ~40 % do curso do ESC: comecar baixo
-  p.vpasso = 10;
+  // Primeiros testes na pista (28/11/2026): motores acima da tensao nominal
+  // (bateria 3S) e PWM 40 nao vencia o atrito no teste das rodas (18/11).
+  // Sai em 60, sem velocidade de reta; o botao 2 em "pronto" soma 10 por
+  // toque (segurar volta ao nivel 0). A EDF fica no minimo e nao sobe com o
+  // nivel. Referencia do EVA-RT: vel 40, reta 10, passo 5, vent 100, vpasso 10.
+  p.vel = 60;
+  p.reta = 0;
+  p.passo = 10;
+  p.vent = 50;        // ~1200 us: EDF girando devagar (se nao girar, 70)
+  p.vpasso = 0;       // o nivel so muda as rodas
   p.nivel = 0;
 
   p.ecurva = 491;     // 4,7 mm

@@ -87,10 +87,10 @@ O mesmo console da USB, pelo BLE do ESP32-C3 (não é Bluetooth clássico: não 
 |---|---|---|
 | `kp`, `kd` | 0,0733 / 0,4885 | PD. Erro em milésimos de sensor (1000 = 9,525 mm na QRE-8D); `kd` por ms. São os 0,06 / 0,40 da barra V1 (1000 = 7,8 mm) no mesmo PWM por mm |
 | `fd` | 50 | filtro da derivada (% da leitura nova por ciclo) |
-| `vel` | 40 | PWM nas curvas fechadas, nível 0 |
-| `reta` | 10 | PWM a mais nas retas (0 = velocidade única) |
-| `passo`, `nivel` | 5 / 0 | aumento por nível, nível ao ligar |
-| `vent`, `vpasso` | 100 / 10 | EDF no nível 0 (0..255 = 1000..2000 µs) e aumento por nível. Chute baixo: subir na pista |
+| `vel` | 60 | PWM nas curvas fechadas, nível 0 (40 não vencia o atrito no teste das rodas) |
+| `reta` | 0 | PWM a mais nas retas (0 = velocidade única); subir depois de acertar o PD |
+| `passo`, `nivel` | 10 / 0 | aumento por nível (botão 2 em "pronto"), nível ao ligar |
+| `vent`, `vpasso` | 50 / 0 | EDF no nível 0 (0..255 = 1000..2000 µs; 50 ≈ 1200 µs, girando devagar) e aumento por nível (0 = o nível só muda as rodas). Subir na pista |
 | `ecurva` | 491 | erro que indica entrada de curva (4,7 mm): volta para `vel` na hora |
 | `treta` | 60 | ms com o erro quieto para poder passar de `vel` |
 | `rreta`, `rcurva` | 15 / 40 | curvatura (% do PWM) até a qual anda em `vel + reta` / a partir da qual anda em `vel` |

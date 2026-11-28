@@ -366,6 +366,13 @@ int main(int argc, char **argv) {
   const std::string pasta = argc > 1 ? argv[1] : "pistas";
   Parametros par;
   parametrosPadrao(par);
+  // Referencia do simulador: os valores do EVA-RT/Dreamcast. Os padroes do
+  // robo (params.h) mudam conforme os testes de pista; os casos daqui nao.
+  par.vel = 40;
+  par.reta = 10;
+  par.passo = 5;
+  par.vent = 100;
+  par.vpasso = 10;
   Resultado x;
   sensoresIguais();
 
